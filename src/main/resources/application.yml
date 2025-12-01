@@ -2,8 +2,8 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/loading_king
-    username:
-    password:
+    username: hojun
+    password: hojun
 
   jpa:
     hibernate:
@@ -15,5 +15,12 @@ spring:
         format_sql: true
         highlight_sql: true
         use_sql_comments: true
+
+        spring:
+          jpa:
+            properties:
+              hibernate:
+                dialect: org.hibernate.spatial.dialect.mysql.MySQL8SpatialDialect
+
 
     open-in-view: false

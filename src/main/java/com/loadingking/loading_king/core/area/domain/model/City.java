@@ -2,8 +2,6 @@ package com.loadingking.loading_king.core.area.domain.model;
 
 import jakarta.persistence.*;
 
-import java.util.List;
-
 @Entity
 public class City {
 
@@ -17,8 +15,18 @@ public class City {
     @Column(nullable = false)
     private String code;
 
-    @OneToMany
-    @JoinColumn(name = "district_id")
-    private List<District> districts;
+    @Column
+    private Integer version = 1;
 
+    protected City() {}
+
+    public City(String name, String code) {
+        this.name = name;
+        this.code = code;
+    }
+
+
+    public Long getId() {
+        return id;
+    }
 }
