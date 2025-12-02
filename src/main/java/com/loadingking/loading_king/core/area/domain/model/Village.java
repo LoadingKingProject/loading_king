@@ -24,23 +24,35 @@ public class Village {
     private District district;
 
     @Column(columnDefinition = "MULTIPOLYGON SRID 4326", nullable = false)
-    private MultiPolygon point;
+    private MultiPolygon field;
 
     protected Village() {}
 
-    public Village(District district, String name, String code, MultiPolygon point) {
+    public Village(District district, String name, String code, MultiPolygon field) {
         this.district = district;
         this.name = name;
         this.code = code;
-        this.point = point;
+        this.field = field;
     }
 
     public Long getId() {
         return id;
     }
 
-    public MultiPolygon getPoint() {
-        return point;
+    public String getName() {
+        return name;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public District getDistrict() {
+        return district;
+    }
+
+    public MultiPolygon getField() {
+        return field;
     }
 }
 

@@ -1,19 +1,26 @@
 package com.loadingking.loading_king.core.area.application;
 
-import com.loadingking.loading_king.core.area.api.dto.CityRequest;
-import com.loadingking.loading_king.core.area.api.dto.DistrictRequest;
-import com.loadingking.loading_king.core.area.api.dto.VillageRequest;
+import com.loadingking.loading_king.core.area.api.dto.request.CityRequest;
+import com.loadingking.loading_king.core.area.api.dto.response.CityResponse;
+import com.loadingking.loading_king.core.area.api.dto.request.DistrictRequest;
+import com.loadingking.loading_king.core.area.api.dto.request.VillageRequest;
+import com.loadingking.loading_king.core.area.api.dto.response.DistrictResponse;
+import com.loadingking.loading_king.core.area.api.dto.response.VillageResponse;
 import com.loadingking.loading_king.core.area.domain.model.City;
 import com.loadingking.loading_king.core.area.domain.model.District;
 import com.loadingking.loading_king.core.area.domain.model.Village;
 import com.loadingking.loading_king.core.area.domain.repository.CityRepository;
 import com.loadingking.loading_king.core.area.domain.repository.DistrictRepository;
 import com.loadingking.loading_king.core.area.domain.repository.VillageRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.locationtech.jts.geom.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+
+import static com.loadingking.loading_king.core.area.util.PolygonMapper.toCoordinateList;
+import static com.loadingking.loading_king.core.area.util.PolygonMapper.toMultiPolygon;
 
 @Service
 public class AreaService {
@@ -21,10 +28,6 @@ public class AreaService {
     private final CityRepository cityRepository;
     private final DistrictRepository districtRepository;
     private final VillageRepository villageRepository;
-
-    private final GeometryFactory geometryFactory = new  GeometryFactory(
-            new PrecisionModel(),
-            4326);
 
     public AreaService(CityRepository cityRepository, DistrictRepository districtRepository,  VillageRepository villageRepository) {
         this.cityRepository = cityRepository;
@@ -35,9 +38,9 @@ public class AreaService {
     @Transactional
     public Long saveCity (CityRequest request){
 
-        City city = new City(request.name(),  request.code());
-
-        City savedCity = cityRepository.save(city);
+        City savedCity = cityRepository.save(new City(
+                request.name(),
+                request.code()));
 
         return savedCity.getId();
     }
@@ -45,11 +48,13 @@ public class AreaService {
     @Transactional
     public Long saveDistrict (Long cityId, DistrictRequest request){
 
-        // city_id
-        City city = cityRepository.findById(cityId).orElseThrow(() -> new RuntimeException("city not found"));
+        City city = cityRepository.findById(cityId).orElseThrow(() ->
+                new EntityNotFoundException("city not found"));
 
-        District district = new District(city, request.name(), request.code());
-        District savedDistrict = districtRepository.save(district);
+        District savedDistrict = districtRepository.save(new District(
+                city,
+                request.name(),
+                request.code()));
 
         return savedDistrict.getId();
     }
@@ -57,54 +62,97 @@ public class AreaService {
     @Transactional
     public Long saveVillage (Long districtId, VillageRequest request){
 
-        District district = districtRepository.findById(districtId).orElseThrow(() -> new RuntimeException("district not found"));
+        District district = districtRepository.findById(districtId).orElseThrow(() ->
+                new EntityNotFoundException("district not found"));
 
         MultiPolygon multiPolygon = toMultiPolygon(request.coordinates());
+        if(multiPolygon.isEmpty()){
+            throw new IllegalStateException("coords is empty");
+        }
 
-        Village village = new Village(district, request.name(), request.code(), multiPolygon);
+        Village savedVillage = villageRepository.save(new Village(
+                district,
+                request.name(),
+                request.code(),
+                multiPolygon));
 
-        Village savedVillage = villageRepository.save(village);
         return savedVillage.getId();
     }
 
-    private MultiPolygon toMultiPolygon(List<List<List<List<Double>>>> coords) {
+    @Transactional
+    public List<CityResponse> findAllCities() {
 
-        Polygon[] polygons = new Polygon[coords.size()];
-
-        for (int i = 0; i < coords.size(); i++) {
-
-            List<List<List<Double>>> polygonCoords = coords.get(i);
-            if (polygonCoords == null || polygonCoords.isEmpty()) {
-                throw new IllegalArgumentException("Polygon #" + i + "의 좌표가 비어 있습니다.");
-            }
-
-            LinearRing shell = toLinearRing(polygonCoords.get(0));
-
-            int holeCount = polygonCoords.size() - 1;
-            LinearRing[] holes = new LinearRing[holeCount > 0 ? holeCount : 0];
-
-            for (int j = 1; j < polygonCoords.size(); j++) {
-                holes[j - 1] = toLinearRing(polygonCoords.get(j));
-            }
-
-            polygons[i] = geometryFactory.createPolygon(shell, holes);
-        }
-
-        MultiPolygon multiPolygon = geometryFactory.createMultiPolygon(polygons);
-        multiPolygon.setSRID(4326);
-
-        return multiPolygon;
+        return cityRepository.findAll()
+                .stream()
+                .map(c -> new CityResponse(
+                        c.getId(),
+                        c.getName(),
+                        c.getCode()
+                ))
+                .toList();
     }
 
-    private LinearRing toLinearRing(List<List<Double>> ringCoords) {
+    @Transactional
+    public List<DistrictResponse> findAllDistricts() {
 
-        Coordinate[] coordinates = new Coordinate[ringCoords.size()];
-
-        for (int k = 0; k < ringCoords.size(); k++) {
-            List<Double> c = ringCoords.get(k);
-            coordinates[k] = new Coordinate(c.get(0), c.get(1));
-        }
-
-        return geometryFactory.createLinearRing(coordinates);
+        return districtRepository.findAll()
+                .stream()
+                .map(d -> new DistrictResponse(
+                        d.getId(),
+                        d.getName(),
+                        d.getCode(),
+                        d.getCity().getId()
+                ))
+                .toList();
     }
+
+    @Transactional
+    public List<VillageResponse> findAllVillages() {
+
+        return villageRepository.findAll()
+                .stream()
+                .map(v -> new VillageResponse(
+                        v.getId(),
+                        v.getName(),
+                        v.getCode(),
+                        v.getDistrict().getId(),
+                        toCoordinateList(v.getField())
+                ))
+                .toList();
+    }
+
+    @Transactional
+    public List<DistrictResponse> findDistrictsByCityId(Long cityId) {
+
+        cityRepository.findById(cityId)
+                .orElseThrow(() -> new EntityNotFoundException("city not found"));
+
+        return districtRepository.findDistrictByCityId(cityId)
+                .stream()
+                .map(d -> new DistrictResponse(
+                        d.getId(),
+                        d.getName(),
+                        d.getCode(),
+                        d.getCity().getId()
+                )).toList();
+    }
+
+    @Transactional
+    public List<VillageResponse> findVillagesByDistrictId(Long districtId) {
+
+        districtRepository.findById(districtId)
+                .orElseThrow(()-> new EntityNotFoundException("district not found"));
+
+        return villageRepository.findVillagesByDistrictId(districtId)
+                .stream()
+                .map(v -> new VillageResponse(
+                        v.getId(),
+                        v.getName(),
+                        v.getCode(),
+                        v.getDistrict().getId(),
+                        toCoordinateList(v.getField())
+                )).toList();
+    }
+
+
 }

@@ -1,6 +1,5 @@
 package com.loadingking.loading_king.core.area.domain.model;
 
-import com.loadingking.loading_king.core.area.api.dto.CityRequest;
 import jakarta.persistence.*;
 
 import java.util.ArrayList;
@@ -33,6 +32,18 @@ public class District {
 
     public Long getId() {
         return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public City getCity() {
+        return city;
     }
 
     public District(City city, String name, String code) {
