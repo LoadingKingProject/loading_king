@@ -1,8 +1,8 @@
 package com.loadingking.loading_king.core.area.domain.model;
 
-import jakarta.persistence.*;
-
 import java.util.List;
+
+import jakarta.persistence.*;
 
 @Entity
 public class City {

@@ -2,7 +2,7 @@ import com.diffplug.gradle.spotless.SpotlessExtension
 
 plugins {
     java
-    id("org.springframework.boot") version "4.0.0"
+    id("org.springframework.boot") version "3.5.7"
     id("io.spring.dependency-management") version "1.1.7"
     id("com.diffplug.spotless") version "6.25.0"
 }
@@ -37,14 +37,36 @@ configure<SpotlessExtension> {
 }
 
 dependencies {
-    implementation ("org.hibernate.orm:hibernate-spatial")
-    implementation ("org.locationtech.jts:jts-core:1.18.2")
+    // Core
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-web")
+
+    // Spatial (GIS)
+    implementation("org.hibernate.orm:hibernate-spatial")
+    implementation("org.locationtech.jts:jts-core:1.18.2")
+
+    // DB
     runtimeOnly("com.mysql:mysql-connector-j")
-    testImplementation("org.springframework.boot:spring-boot-starter-data-jpa-test")
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    runtimeOnly("com.h2database:h2") // 테스트용
+
+    // Lombok
+    compileOnly("org.projectlombok:lombok")
+    annotationProcessor("org.projectlombok:lombok")
+
+    // === 테스트 관련 (Spring Boot 4.0.0 호환) ===
+    testImplementation("org.springframework.boot:spring-boot-starter-test") {
+        // 필요 시 JUnit 4 제외 (기본적으로 JUnit 5 사용)
+        exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
+    }
+
+    // JPA 테스트를 위한 명시적 의존성 추가
+    testImplementation("org.springframework.boot:spring-boot-test-autoconfigure")
+
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testRuntimeOnly("com.h2database:h2")
+
+    testCompileOnly("org.projectlombok:lombok")
+    testAnnotationProcessor("org.projectlombok:lombok")
 }
 
 tasks.withType<Test> {

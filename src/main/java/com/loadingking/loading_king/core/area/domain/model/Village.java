@@ -1,6 +1,7 @@
 package com.loadingking.loading_king.core.area.domain.model;
 
 import jakarta.persistence.*;
+
 import org.locationtech.jts.geom.MultiPolygon;
 
 @Entity

@@ -1,9 +1,8 @@
 package com.loadingking.loading_king.core.area.domain.model;
 
-import jakarta.persistence.*;
-
-import java.awt.geom.Area;
 import java.util.List;
+
+import jakarta.persistence.*;
 
 @Entity
 public class District {
