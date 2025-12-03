@@ -154,5 +154,48 @@ public class AreaService {
                 )).toList();
     }
 
+    @Transactional
+    public CityResponse findCityById(Long cityId){
+
+        City city = cityRepository.findById(cityId).orElseThrow(() ->
+                new EntityNotFoundException("city not found"));
+
+        return new CityResponse(
+                city.getId(),
+                city.getName(),
+                city.getCode()
+                );
+    }
+
+    @Transactional
+    public DistrictResponse findDistrictById(Long districtId){
+
+        District district = districtRepository.findById(districtId)
+                .orElseThrow(()-> new EntityNotFoundException("district not found"));
+
+        return new DistrictResponse(
+                district.getId(),
+                district.getName(),
+                district.getCode(),
+                district.getCity().getId()
+        );
+    }
+
+    @Transactional
+    public VillageResponse findVillageById(Long villageId){
+
+        Village village = villageRepository.findById(villageId)
+                .orElseThrow(()-> new EntityNotFoundException("village not found"));
+
+        return new VillageResponse(
+                village.getId(),
+                village.getName(),
+                village.getCode(),
+                village.getDistrict().getId(),
+                toCoordinateList(village.getField())
+        );
+    }
+
+
 
 }

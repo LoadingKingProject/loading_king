@@ -87,4 +87,22 @@ public class AreaController {
 
         return ResponseEntity.ok(areaService.findVillagesByDistrictId(districtId));
     }
+
+    @GetMapping("/cities/{cityId}")
+    public ResponseEntity<CityResponse> findCityById(@PathVariable Long cityId){
+
+        return ResponseEntity.ok(areaService.findCityById(cityId));
+    }
+
+    @GetMapping("/districts/{districtId}")
+    public ResponseEntity<DistrictResponse> findDistrictById(@PathVariable Long districtId){
+
+        return ResponseEntity.ok(areaService.findDistrictById(districtId));
+    }
+
+    @GetMapping("/villages/{villageId}")
+    public ResponseEntity<VillageResponse> findVillageById(@PathVariable Long villageId){
+
+        return ResponseEntity.ok(areaService.findVillageById(villageId));
+    }
 }
