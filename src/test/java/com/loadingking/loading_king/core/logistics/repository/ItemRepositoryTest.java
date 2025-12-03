@@ -24,11 +24,11 @@ class ItemRepositoryTest {
     @DisplayName("송장 번호로 물품을 저장하고 조회할 수 있다")
     void save_and_find_by_invoice() {
         // 1. Given (준비)
-        Long userId = 100L;
+        Long jobId = 100L;
         String invoiceNo = "INV-TEST-001";
         String address = "서울시 강남구 역삼동";
 
-        Item newItem = Item.create(userId, invoiceNo, address);
+        Item newItem = Item.create(jobId, invoiceNo, address);
 
         // 2. When (실행)
         Item savedItem = itemRepository.save(newItem);
@@ -41,7 +41,7 @@ class ItemRepositoryTest {
 
         assertThat(foundItem).isPresent();
         assertThat(foundItem.get().getInvoiceNo()).isEqualTo(invoiceNo);
-        assertThat(foundItem.get().getUserId()).isEqualTo(userId);
+        assertThat(foundItem.get().getJobId()).isEqualTo(userId);
         assertThat(foundItem.get().getStatus()).isEqualTo(ItemStatus.SCANNED);
     }
 

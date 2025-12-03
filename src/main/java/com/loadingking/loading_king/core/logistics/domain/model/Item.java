@@ -21,8 +21,8 @@ public class Item {
     @Column(name = "item_id")
     private Long id;
 
-    @Column(name = "user_id", nullable = false)
-    private Long userId; // 담당 기사 ID
+    @Column(name = "job_id", nullable = false)
+    private Long jobId; // 담당 기사 ID
 
     @Column(name = "sector_id")
     private Long sectorId; // 배정된 섹터 (초기엔 null 가능)
@@ -47,9 +47,9 @@ public class Item {
     private LocalDateTime createdAt;
 
     // --- 생성자 (Factory Method) ---
-    public static Item create(Long userId, String invoiceNo, String address) {
+    public static Item create(Long jobId, String invoiceNo, String address) {
         Item item = new Item();
-        item.userId = userId;
+        item.jobId = jobId;
         item.invoiceNo = invoiceNo;
         item.address = address;
         item.status = ItemStatus.SCANNED;

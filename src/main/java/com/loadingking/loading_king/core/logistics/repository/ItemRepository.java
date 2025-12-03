@@ -14,14 +14,14 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
     Optional<Item> findByInvoiceNo(String invoiceNo);
 
     // 2. 특정 기사의 모든 물품 조회 (적재 순서 계산 시 사용)
-    List<Item> findAllByUserId(Long userId);
+    List<Item> findAllByJobId(Long jobId);
 
     // 3. 특정 기사의 특정 섹터 물품 조회 (섹터별 리스트 필요 시)
-    List<Item> findAllByUserIdAndSectorId(Long userId, Long sectorId);
+    List<Item> findAllByUserIdAndSectorId(Long jobId, Long sectorId);
 
     // 4. 데이터 초기화용 (배송 완료 시 해당 기사의 물품 전체 삭제)
     // 주의: @Transactional이 서비스 계층에 있어야 동작함
-    void deleteAllByUserId(Long userId);
+    void deleteAllByUserId(Long jobId);
 
     // 5. (Optional) 이미 스캔된 송장인지 체크용
     boolean existsByInvoiceNo(String invoiceNo);
