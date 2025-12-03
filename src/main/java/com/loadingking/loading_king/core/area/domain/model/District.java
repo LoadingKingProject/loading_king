@@ -2,7 +2,7 @@ package com.loadingking.loading_king.core.area.domain.model;
 
 import jakarta.persistence.*;
 
-import java.awt.geom.Area;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -18,11 +18,37 @@ public class District {
     @Column(nullable = false)
     private String code;
 
-    @OneToMany
-    @JoinColumn(name = "villages_id")
-    private List<Village> villages;
+    @Column
+    private Integer version = 1;
+
+    @OneToMany(mappedBy = "district")
+    private List<Village> villages = new ArrayList<>();
 
     @ManyToOne
-    @JoinColumn(name = "city_id")
+    @JoinColumn(name = "city_id", nullable = false)
     private City city;
+
+    protected District() {}
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public City getCity() {
+        return city;
+    }
+
+    public District(City city, String name, String code) {
+        this.city = city;
+        this.name = name;
+        this.code = code;
+    }
 }
