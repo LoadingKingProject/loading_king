@@ -45,6 +45,8 @@ dependencies {
     runtimeOnly("com.mysql:mysql-connector-j")
     testImplementation("org.springframework.boot:spring-boot-starter-data-jpa-test")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("com.h2database:h2")                         // test db
+    testImplementation("org.orbisgis:h2gis:2.2.1")                  // h2 공간 연산 관련
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
