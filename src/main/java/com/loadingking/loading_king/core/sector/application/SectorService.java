@@ -44,4 +44,15 @@ public class SectorService {
         return sectorRepository.findAllById(sectorIds);
     }
 
+    /**
+     * 섹터 ID에 해당하는 섹터의 이름을 반환
+     * @param sectorId 섹터 ID
+     * @return 섹터 이름, 섹터가 없으면 "미배정" 반환
+     */
+    @Transactional(readOnly = true)
+    public String getSectorName(Long sectorId) {
+        return sectorRepository.findById(sectorId)
+                .map(Sector::getSectorName)
+                .orElse("미배정");
+    }
 }

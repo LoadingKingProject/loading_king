@@ -1,4 +1,4 @@
-package com.loadingking.loading_king.core.user.userRepository;
+package com.loadingking.loading_king.core.user.repository;
 
 import com.loadingking.loading_king.core.user.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -4,8 +4,8 @@ package com.loadingking.loading_king.core.user.application;
 import com.loadingking.loading_king.core.user.domain.User;
 import com.loadingking.loading_king.core.user.dto.UserRequest;
 import com.loadingking.loading_king.core.user.dto.UserResponse;
-import com.loadingking.loading_king.core.user.userRepository.UserRepository;
-import lombok.NoArgsConstructor;
+import com.loadingking.loading_king.core.user.repository.UserRepository;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -3,6 +3,7 @@ package com.loadingking.loading_king.infra.security.handler;
 import com.loadingking.loading_king.infra.security.CustomUserDetail;
 import com.loadingking.loading_king.infra.security.jwt.JwtTokenProvider;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +21,6 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
-
     private final JwtTokenProvider jwtTokenProvider;
 
 
@@ -32,14 +32,29 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
 
         String accessToken = jwtTokenProvider.createAccessToken(authentication);
+        String refreshToken = jwtTokenProvider.createRefreshToken(authentication);
 
         log.info("[OAuth2SuccessHandler] Token Generated for User: {}", userDetail.getUsername());
 
-        String targetUrl = UriComponentsBuilder.fromUriString("/")
+        /*String targetUrl = UriComponentsBuilder.fromUriString("/")
                 .queryParam("token", accessToken)
-                .build().toUriString();
+                .build().toUriString();*/
 
-        getRedirectStrategy().sendRedirect(request, response, targetUrl);
+        Cookie tokenCookie = new Cookie("accessToken", accessToken);
+        tokenCookie.setPath("/"); // 쿠키가 유효한 경로 설정
+        tokenCookie.setHttpOnly(true); // 자바스크립트에서 접근 불가
+        tokenCookie.setMaxAge(60 * 60); // 쿠키 유효기간 설정
+        response.addCookie(tokenCookie);
+
+
+        Cookie refreshCookie = new Cookie("refreshToken", refreshToken);
+        refreshCookie.setPath("/");
+        refreshCookie.setHttpOnly(true); // 자바스크립트 접근 불가 (XSS 방지)
+        refreshCookie.setSecure(false);   // HTTPS에서만 전송 (운영 환경 적용 시 필수)
+        refreshCookie.setMaxAge(7 * 24 * 60 * 60); // 7일
+        response.addCookie(refreshCookie);
+
+        getRedirectStrategy().sendRedirect(request, response, "/");
 
     }
 }

@@ -1,4 +1,4 @@
-package com.loadingking.loading_king.core.logistics.domain;
+package com.loadingking.loading_king.core.logistics.domain.model;
 
 import jakarta.persistence.*;
 
@@ -35,6 +35,14 @@ public class DeliveryJob {
 
     protected DeliveryJob() {}
 
+    public static DeliveryJob create(Long driverId) {
+        DeliveryJob job = new DeliveryJob();
+        job.driverId = driverId;
+        job.workDate = LocalDate.now();
+        job.status = JobStatus.PENDING;
+        return job;
+    }
+
     public Long getId() {
         return id;
     }
@@ -54,4 +62,6 @@ public class DeliveryJob {
     public JobStatus getStatus() {
         return status;
     }
+
+
 }

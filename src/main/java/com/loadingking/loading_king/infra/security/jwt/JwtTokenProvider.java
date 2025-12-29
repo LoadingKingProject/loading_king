@@ -1,7 +1,6 @@
 package com.loadingking.loading_king.infra.security.jwt;
 
-import com.loadingking.loading_king.core.user.domain.User;
-import com.loadingking.loading_king.core.user.userRepository.UserRepository;
+import com.loadingking.loading_king.core.user.repository.UserRepository;
 import com.loadingking.loading_king.infra.security.CustomUserDetail;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
@@ -10,14 +9,11 @@ import io.jsonwebtoken.security.Keys;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
-import java.util.Collections;
 import java.util.Date;
 import java.util.stream.Collectors;
 
@@ -27,7 +23,7 @@ public class JwtTokenProvider {
 
     private final Key key;
     private final long accessTokenValidityInMilliseconds;
-    private final UserRepository userRepository;
+
 
     public JwtTokenProvider(
             @Value("${jwt.secret}") String secretKey,
@@ -37,49 +33,64 @@ public class JwtTokenProvider {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes);
         this.accessTokenValidityInMilliseconds = accessTokenValidityInMilliseconds;
-        this.userRepository = userRepository;
+
     }
 
     // 토큰 생성
-    public String createAccessToken(Authentication authentication) {
-
-        //인증된 사용자 정보(Principal) 가져오기
-        CustomUserDetail userPrincipal = (CustomUserDetail) authentication.getPrincipal();
-        Long userId = userPrincipal.getUser().getId();
-
-        //권한 정보
-        String authorities = authentication.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.joining(","));
+    public String createAccessToken(Long userId, String role) {
 
         Date now = new Date();
         Date validity = new Date(now.getTime() + accessTokenValidityInMilliseconds);
 
         return Jwts.builder()
                 .setSubject(String.valueOf(userId))  // 토큰 제목에 User ID(PK) 저장
-                .claim("auth", authorities)        //권한 정보 "auth"라는 키로 저장
+                .claim("auth", role)        //권한 정보 "auth"라는 키로 저장
                 .setIssuedAt(now)                       //발생 시간
                 .setExpiration(validity)                //만료 시간
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
+    public String createAccessToken(Authentication authentication) {
+        CustomUserDetail userPrincipal = (CustomUserDetail) authentication.getPrincipal();
+        // 권한들 꺼내서 문자열로 변환 (예: "ROLE_USER,ROLE_ADMIN")
+        String authorities = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.joining(","));
 
-    public Authentication getAuthentication(String token) {
-        Claims claims = parseClaims(token);
-
-        // 토큰에 담긴 유저 ID 가져오기
-        Long userId = Long.valueOf(claims.getSubject());
-
-        // [수정] DB에서 진짜 유저 정보 조회 (없으면 예외 발생)
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with id: " + userId));
-
-        // [수정] 조회한 유저 정보로 CustomUserDetail 생성
-        CustomUserDetail customUserDetail = new CustomUserDetail(user, Collections.emptyMap());
-
-        // [수정] Authentication 객체에 CustomUserDetail을 담아서 반환
-        return new UsernamePasswordAuthenticationToken(customUserDetail, token, customUserDetail.getAuthorities());
+        // 핵심 메서드 호출
+        return createAccessToken(userPrincipal.getUser().getId(), authorities);
     }
+
+    //메서드 오버로딩 (같은 메서드명 사용)
+    public String createRefreshToken(Long userId) {
+        // Access Token 생성 로직과 비슷하지만, 유효기간만 길게(예: 7일) 설정
+        Date now = new Date();
+        Date validity = new Date(now.getTime() + (7 * 24 * 60 * 60 * 1000)); // 7일
+
+        return Jwts.builder()
+                .setSubject(String.valueOf(userId)) // ID를 Subject로 저장
+                .setIssuedAt(now)
+                .setExpiration(validity)
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+    }
+    public String createRefreshToken(Authentication authentication) {
+        CustomUserDetail userPrincipal = (CustomUserDetail) authentication.getPrincipal();
+
+        return createRefreshToken(userPrincipal.getUser().getId());
+    }
+
+
+    public long getExpiration(String token) {
+        Date expiration = parseClaims(token).getExpiration();
+        long now = new Date().getTime();
+        return (expiration.getTime() - now);
+    }
+    public String getUserIdFromToken(String token) {
+        Claims claims = parseClaims(token);
+        return claims.getSubject();
+    }
+
 
 
     public boolean validateToken(String token) {
@@ -99,7 +110,7 @@ public class JwtTokenProvider {
         return false;
     }
 
-    private Claims parseClaims(String accessToken) {
+    public Claims parseClaims(String accessToken) {
 
        try{
            return Jwts.parserBuilder()
