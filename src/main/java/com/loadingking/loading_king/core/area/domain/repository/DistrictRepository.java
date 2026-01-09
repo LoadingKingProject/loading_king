@@ -10,5 +10,7 @@ import java.util.List;
 @Repository
 public interface DistrictRepository extends JpaRepository<District, Long> {
 
-    public List<District> findDistrictByCityId(Long CityId);
+    List<District> findDistrictByCityId(Long CityId);
+
+    List<District> findByCityIdOrderByNameAsc(Long cityId);
 }

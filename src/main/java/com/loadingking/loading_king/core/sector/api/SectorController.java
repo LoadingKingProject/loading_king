@@ -1,37 +1,58 @@
 package com.loadingking.loading_king.core.sector.api;
 
-import org.springframework.http.HttpStatus;
+import com.loadingking.loading_king.core.sector.application.SectorService;
+import com.loadingking.loading_king.core.sector.domain.Sector;
+import com.loadingking.loading_king.core.sector.dto.SectorRequest;
+import com.loadingking.loading_king.core.sector.dto.SectorResponse;
+import com.loadingking.loading_king.infra.security.CustomUserDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/sectors")
+@RequestMapping("/api/sectors") // 1. 모든 요청은 /api/sectors 로 시작합니다.
 public class SectorController {
 
+    private final SectorService sectorService;
+
+    public SectorController(SectorService sectorService) {
+        this.sectorService = sectorService;
+    }
+
+    // 2. 섹터 생성하기 (프론트: Setup Step 2)
+    // POST /api/sectors 요청이 오면 실행됩니다.
     @PostMapping
-    public ResponseEntity<Void> saveSectorByPoint(@RequestParam double lat, @RequestParam double lng) {
-        //TODO: 프론트에서 지도에 다각형을 그리면 그 좌표들을 서버에 저장
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+    public ResponseEntity<?> createSector(
+            @AuthenticationPrincipal CustomUserDetail userDetail, // 누가 요청했는지(기사님 정보)
+            @RequestBody SectorRequest request) {                 // 프론트에서 보낸 데이터(반경, 좌표 등)
+
+        // 서비스에게 "이 데이터로 섹터 좀 만들어줘(다각형 변환해줘)"라고 시킵니다.
+        Long sectorId = sectorService.createSector(request, userDetail.getUser());
+
+        // 잘 됐다고 응답합니다.
+        return ResponseEntity.ok(Map.of("id", sectorId, "message", "섹터 생성 완료"));
     }
 
-    @GetMapping("/{driverId}")
-    public ResponseEntity<List<?>> getAllSectors(@PathVariable Long driverId) {
-        //TODO: 저장된 모든 구역의 경계 좌표와 이름을 목록으로 가져옴
-        return ResponseEntity.ok(List.of());
+    // 3. 내 섹터 목록 조회하기 (프론트: Setup Step 3)
+    // GET /api/sectors 요청이 오면 실행됩니다.
+    @GetMapping
+    public ResponseEntity<List<SectorResponse>> getMySectors(
+            @AuthenticationPrincipal CustomUserDetail userDetail) {
+
+        // 서비스에게 "이 기사님이 만든 섹터 다 가져와"라고 시킵니다.
+        List<Sector> sectors = sectorService.findAllSectors(userDetail.getUser());
+
+        List<SectorResponse> response = sectors.stream()
+                .map(SectorResponse::from)
+                .collect(Collectors.toList());
+
+        // 목록을 프론트엔드에 돌려줍니다.
+        return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/search")
-    public ResponseEntity<?> findSectorByPoint(@RequestParam double lat, @RequestParam double lng) {
-        //TODO: 특정 위도/경도를 보내면, 그 위치를 감싸고 있는 구역 정보를 응답
-        return ResponseEntity.ok(null);
-    }
-
-    @PostMapping("/assignment")
-    public ResponseEntity<?> assignSector() {
-        //TODO: 배송 업무 ID를 보내면, 각 업무의 위치 정보를 계산해서 적절한 구역 ID를 반환
-        return ResponseEntity.ok(null);
-    }
 
 }

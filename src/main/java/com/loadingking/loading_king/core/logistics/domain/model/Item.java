@@ -20,6 +20,7 @@ public class Item {
     private String address;
 
     @Column(nullable = false, columnDefinition = "geometry(Point, 4326)")
+    @Column(nullable = false, columnDefinition = "POINT SRID 4326")
     private Point location;
 
     private Long sectorId; // Nullable (미배정 가능)

@@ -2,6 +2,7 @@ package com.loadingking.loading_king.infra.security;
 
 import com.loadingking.loading_king.core.user.domain.User;
 import org.jspecify.annotations.Nullable;
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,6 +15,12 @@ import java.util.Map;
 
 public class CustomUserDetail implements UserDetails, OAuth2User {
 
+import java.util.Map;
+
+
+public class CustomUserDetail implements UserDetails, OAuth2User {
+
+    @Getter
     private final User user;
     private final Map<String, Object> attributes;
 
@@ -24,6 +31,8 @@ public class CustomUserDetail implements UserDetails, OAuth2User {
 
     public User getUser() {
         return user;
+    public CustomUserDetail(User user) {
+        this(user, Collections.emptyMap());
     }
 
     @Override

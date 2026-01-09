@@ -42,6 +42,7 @@ public class User {
     private LocalDateTime createdAt;
 
     @ElementCollection
+    @ElementCollection(fetch =  FetchType.EAGER)
     @CollectionTable(name = "user_sectors", joinColumns = @JoinColumn(name = "user_id"))
     private final List<Long> sectors = new ArrayList<>();
 

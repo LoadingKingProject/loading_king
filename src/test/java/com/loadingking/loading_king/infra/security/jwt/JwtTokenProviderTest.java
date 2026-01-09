@@ -3,6 +3,7 @@ package com.loadingking.loading_king.infra.security.jwt;
 import com.loadingking.loading_king.core.user.domain.Role;
 import com.loadingking.loading_king.core.user.domain.User;
 import com.loadingking.loading_king.core.user.userRepository.UserRepository;
+import com.loadingking.loading_king.core.user.repository.UserRepository;
 import com.loadingking.loading_king.infra.security.CustomUserDetail;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -22,6 +23,7 @@ import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
+
 @SpringBootTest
 class JwtTokenProviderTest {
 

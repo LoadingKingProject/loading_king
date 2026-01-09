@@ -48,6 +48,14 @@ public class SecurityConfig {
                 .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2
+                .requestMatchers("/", "/login/**", "/drive",
+                        "/oauth2/**", "/css/**", "/images/**",
+                        "/js/**", "/error", "/favicon.ico", "/api/auth/**").permitAll()
+
+                .anyRequest().authenticated()
+                )
+                .oauth2Login(oauth2 -> oauth2
+                                .loginPage("/login")
                         .userInfoEndpoint(userInfo -> userInfo
                                 .userService(customOAuth2UserService)
                 )

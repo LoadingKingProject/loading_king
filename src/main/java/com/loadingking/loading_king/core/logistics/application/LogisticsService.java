@@ -25,6 +25,17 @@ public class LogisticsService {
         this.itemRepository = itemRepository;
         this.deliveryJobRepository = deliveryJobRepository;
         this.sectorService = sectorService;
+    private final SectorService sectorService;     // (이름 조회용으로 유지)
+    private final DispatchService dispatchService; // [NEW] 배정 전담 서비스
+
+    public LogisticsService(ItemRepository itemRepository,
+                            DeliveryJobRepository deliveryJobRepository,
+                            SectorService sectorService,
+                            DispatchService dispatchService) {
+        this.itemRepository = itemRepository;
+        this.deliveryJobRepository = deliveryJobRepository;
+        this.sectorService = sectorService;
+        this.dispatchService = dispatchService;
     }
 
     @Transactional
@@ -43,6 +54,13 @@ public class LogisticsService {
         Long sectorId = sectorService.findContainingSector(user.getSectors(), location)
                 .map(Sector::getId)
                 .orElse(null);
+        // 2. 좌표 변환 (임시 더미 좌표 or 카카오 API 연동)
+        // TODO: 실제 주소 -> 좌표 변환 로직 적용 필요
+        Point location = GeometryUtils.createPoint(126.70, 37.76);
+
+        // 3. [Refactored] 섹터 배정 (DispatchService에 위임)
+        // LogisticsService는 "어떻게" 배정하는지 알 필요 없이 결과만 받아옵니다.
+        Long sectorId = dispatchService.dispatch(user, location);
 
         // 4. 업무 조회 또는 생성
         DeliveryJob job = deliveryJobRepository.findActiveJobByDriverId(user.getId())
@@ -58,6 +76,16 @@ public class LogisticsService {
         // 6. 결과 반환
         String sectorName = (sectorId != null) ? sectorService.getSectorName(sectorId) : "미배정";
         boolean isAssigned = (sectorId != null);
+        return new ScanResponseDto(barcode, sectorName, isAssigned);
+    }
+}
+        Item item = Item.create(barcode, address, location, sectorId, job.getId());
+        itemRepository.save(item);
+
+        // 6. 결과 반환 (이름 조회는 SectorService 이용)
+        String sectorName = (sectorId != null) ? sectorService.getSectorName(sectorId) : "미배정";
+        boolean isAssigned = (sectorId != null);
+
         return new ScanResponseDto(barcode, sectorName, isAssigned);
     }
 }
