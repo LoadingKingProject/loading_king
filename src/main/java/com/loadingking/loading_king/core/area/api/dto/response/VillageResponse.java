@@ -1,14 +1,33 @@
 package com.loadingking.loading_king.core.area.api.dto.response;
 
-import org.locationtech.jts.geom.MultiPolygon;
+
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.loadingking.loading_king.core.area.domain.model.Village;
+import lombok.Builder;
+import lombok.Getter;
 
 import java.util.List;
 
-public record VillageResponse(
-        Long id,
-        String name,
-        String code,
-        Long districtId,
-        List<List<List<List<Double>>>> coordinates
-) {
+@Getter
+@Builder
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class VillageResponse{
+
+    private Long id;
+    private String name;
+    private String code;
+    private String wkt;
+
+    public static VillageResponse from(Village village){
+        return VillageResponse.builder()
+                .id(village.getId())
+                .name(village.getName())
+                .code(village.getCode())
+                .wkt(village.getField() != null ? village.getField().toString() : null)
+                .build();
+
+    }
 }
+
+

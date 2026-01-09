@@ -1,4 +1,4 @@
-package com.loadingking.loading_king.core.logistics.domain;
+package com.loadingking.loading_king.core.logistics.domain.model;
 
 public enum JobStatus {
     PENDING("대기"),

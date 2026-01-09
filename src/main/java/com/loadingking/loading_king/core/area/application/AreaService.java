@@ -18,8 +18,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
-import static com.loadingking.loading_king.core.area.util.PolygonMapper.toCoordinateList;
+
 import static com.loadingking.loading_king.core.area.util.PolygonMapper.toMultiPolygon;
 
 @Service
@@ -106,18 +107,11 @@ public class AreaService {
                 .toList();
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<VillageResponse> findAllVillages() {
-
         return villageRepository.findAll()
                 .stream()
-                .map(v -> new VillageResponse(
-                        v.getId(),
-                        v.getName(),
-                        v.getCode(),
-                        v.getDistrict().getId(),
-                        toCoordinateList(v.getField())
-                ))
+                .map(VillageResponse::from)
                 .toList();
     }
 
@@ -137,21 +131,12 @@ public class AreaService {
                 )).toList();
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<VillageResponse> findVillagesByDistrictId(Long districtId) {
+        return villageRepository.findVillagesByDistrictId(districtId).stream()
+                .map(VillageResponse::from)
+                .collect(Collectors.toList());
 
-        districtRepository.findById(districtId)
-                .orElseThrow(()-> new EntityNotFoundException("district not found"));
-
-        return villageRepository.findVillagesByDistrictId(districtId)
-                .stream()
-                .map(v -> new VillageResponse(
-                        v.getId(),
-                        v.getName(),
-                        v.getCode(),
-                        v.getDistrict().getId(),
-                        toCoordinateList(v.getField())
-                )).toList();
     }
 
     @Transactional
@@ -181,19 +166,14 @@ public class AreaService {
         );
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public VillageResponse findVillageById(Long villageId){
 
         Village village = villageRepository.findById(villageId)
-                .orElseThrow(()-> new EntityNotFoundException("village not found"));
+                .orElseThrow(()-> new IllegalArgumentException("village not found"));
 
-        return new VillageResponse(
-                village.getId(),
-                village.getName(),
-                village.getCode(),
-                village.getDistrict().getId(),
-                toCoordinateList(village.getField())
-        );
+        return VillageResponse.from(village);
+
     }
 
 
