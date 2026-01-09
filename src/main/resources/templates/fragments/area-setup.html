@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<th:block th:fragment="areaSetupFragment">
+    <section id="phase_area" class="phase transparent-bg">
+
+        <div class="area-selector-card">
+            <h3>오늘의 배송 구역</h3>
+            <div class="select-group">
+                <select id="citySelect" onchange="handleCityChange()">
+                    <option value="">시/도 선택</option>
+                </select>
+            </div>
+            <div class="select-group">
+                <select id="districtSelect" onchange="handleDistrictChange()" disabled>
+                    <option value="">시/군/구</option>
+                </select>
+            </div>
+            <div class="select-group">
+                <select id="villageSelect" onchange="handleVillageChange()" disabled>
+                    <option value="">읍/면/동</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="areaConfirmOverlay" class="confirm-overlay" style="display: none;">
+            <div class="overlay-content">
+                <div class="info-row">
+                    <span class="label">선택된 구역</span>
+                    <span id="selectedAreaName" class="value">-</span>
+                </div>
+                <p class="description">지도에 표시된 파란색 영역이 배송 구역입니다.</p>
+
+                <button id="confirmBtn" class="btn btn-primary" onclick="goToPhase('phase_sector')">
+                    이 구역 확정 및 섹터 설정 🚩
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <section id="phase_sector" class="phase transparent-bg" style="display:none;">
+        <div class="map-overlay-card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <h3 style="margin:0;">섹터 생성 (Create Sector)</h3>
+                <span id="radiusVal" style="color:var(--primary-color); font-weight:bold;">100m</span>
+            </div>
+            <div style="display:flex; gap:5px; margin-bottom:10px;">
+                <input type="text" id="sectorNameInput" class="input-field" placeholder="구역명 (예: A)" style="flex:1; margin:0;">
+                <button class="btn btn-accent" onclick="addSector()" style="width:80px;">생성</button>
+            </div>
+            <input type="range" min="50" max="500" step="10" value="100" style="width:100%;" oninput="updateRadius(this.value)">
+        </div>
+
+        <div class="container" style="position:absolute; bottom:0; left:0; right:0; height:35%; background:white; border-radius:20px 20px 0 0; padding:20px; overflow-y:auto;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                <span style="font-weight:bold;">생성된 섹터 목록</span>
+                <span id="sectorCountBadge" class="step-badge">0개</span>
+            </div>
+            <div id="createdSectorList" style="margin-bottom:20px;">
+                <p style="text-align:center; color:#999; font-size:0.9rem;">지도에 핀을 꽂아<br>구역을 나눠주세요.</p>
+            </div>
+            <button class="btn btn-primary" onclick="goToPhase('setup4')">
+                다음: 순서 설정 (Set Order)
+            </button>
+        </div>
+
+        <div id="radiusCircle" style="position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); width:200px; height:200px; border:2px dashed red; border-radius:50%; pointer-events:none; z-index:1; opacity:0.5;"></div>
+        <div style="position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); color:red; font-size:1.5rem; pointer-events:none; z-index:2;">
+            <i class="fa-solid fa-plus"></i>
+        </div>
+    </section>
+</th:block>
+</html>

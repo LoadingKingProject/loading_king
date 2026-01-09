@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="commonHead">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Loading King Partner</title>
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+
+    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=b4d768a8dd47b2e588635a2454aef081&libraries=services,drawing"></script>
+
+    <script>
+        // 서버에서 토큰이 넘어오면 JS 변수에 저장 (없으면 null)
+        const SERVER_TOKEN = '[[${token}]]';
+    </script>
+</head>
+</html>

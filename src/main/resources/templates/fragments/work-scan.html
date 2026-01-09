@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<th:block th:fragment="workScanFragment">
+    <section id="op_scan" class="phase solid-bg" style="display:none;">
+        <header class="header">
+            <h1>물품 스캔 (Scanning)</h1>
+            <span class="step-badge" style="background:var(--danger-color); color:white;">Action</span>
+        </header>
+        <div class="container">
+            <div class="scan-box" id="scanView">
+                <div class="scan-line"></div>
+                <i class="fa-solid fa-barcode" style="font-size:3rem; color:#555; margin-bottom:15px;"></i>
+                <p>물품 바코드를 스캔하세요</p>
+            </div>
+            <div id="scanResultCard" class="card" style="display:none; text-align:center; border:2px solid var(--accent-color);">
+                <p style="margin:0; color:var(--text-sub);">구역 배정 결과</p>
+                <h1 id="scanResultTitle" style="font-size:3rem; margin:10px 0; color:var(--accent-color);">A</h1>
+                <p id="scanResultDesc" style="margin:0;">A구역 (아파트)</p>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px; color:var(--text-sub); font-size:0.9rem;">
+                <span>스캔 현황</span>
+                <span id="scanTotalCount">0개</span>
+            </div>
+            <button class="btn btn-accent" onclick="simulateScanAction()">
+                <i class="fa-solid fa-camera"></i> SCAN (Simulation)
+            </button>
+            <button class="btn btn-primary" style="margin-top:10px;" onclick="goToPhase('op_load')">
+                분류 완료 & 적재 모드
+            </button>
+        </div>
+    </section>
+
+    <section id="op_load" class="phase solid-bg" style="display:none;">
+        <header class="header">
+            <h1>적재 가이드 (Loading)</h1>
+            <span class="step-badge">LIFO</span>
+        </header>
+        <div class="container">
+            <div style="background: rgba(239, 68, 68, 0.1); padding:15px; border-radius:12px; margin-bottom:20px; color:var(--danger-color);">
+                <i class="fa-solid fa-truck-ramp-box"></i>
+                <b> 역순 적재:</b> 안쪽부터 채우세요.
+            </div>
+            <div id="loadingGuideList"></div>
+            <button class="btn btn-success" onclick="goToPhase('op_deliver')">
+                적재 완료 & 배송 시작
+            </button>
+        </div>
+    </section>
+</th:block>
+</html>
