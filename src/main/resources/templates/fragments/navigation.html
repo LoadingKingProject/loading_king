@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<th:block th:fragment="navigationFragment">
+    <section id="op_deliver" class="phase solid-bg" style="display:none;">
+        <header class="header">
+            <h1>배송 네비게이션</h1>
+            <span class="step-badge">Run</span>
+        </header>
+        <div class="container">
+            <div style="background: rgba(16, 185, 129, 0.1); padding:15px; border-radius:12px; margin-bottom:20px; color:var(--success-color);">
+                <i class="fa-solid fa-location-arrow"></i>
+                <b> 배송 시작:</b> 문쪽부터 내립니다.
+            </div>
+            <div id="deliveryRouteList" style="position:relative; padding-left:20px;">
+                <div style="position:absolute; left:0; top:10px; bottom:10px; width:2px; background:#333;"></div>
+            </div>
+            <button class="btn btn-primary" onclick="alert('카카오내비/티맵 연동 예정')">
+                길안내 시작
+            </button>
+            <button class="btn btn-dark" style="margin-top:10px;" onclick="location.href='/'">
+                퇴근하기 (초기화)
+            </button>
+        </div>
+    </section>
+</th:block>
+</html>
