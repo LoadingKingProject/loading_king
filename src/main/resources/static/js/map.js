@@ -1,7 +1,7 @@
 let map; // 지도 객체
 let polygons = [];
 
-// 1. 지도 초기화 (화면 진입 시 호출)
+// 1. 지도 초기화
 function initMap(containerId) {
     const container = document.getElementById(containerId);
     if (!container) return;
@@ -44,7 +44,7 @@ async function handleCityChange() {
     districtSelect.disabled = true;
     villageSelect.disabled = true;
 
-    clearPolygons();
+    resetUI();
 
     if (!cityId) return;
 
@@ -71,7 +71,7 @@ async function handleDistrictChange() {
     villageSelect.innerHTML = '<option value="">읍/면/동</option>';
     villageSelect.disabled = true;
 
-    clearPolygons();
+    resetUI();
 
     if (!districtId) return;
 
@@ -90,18 +90,15 @@ async function handleDistrictChange() {
     } catch (e) { console.error("읍/면/동 로드 실패:", e); }
 }
 
-// 5. 읍/면/동 선택 핸들러 (폴리곤 그리기)
+// 5. 읍/면/동 선택 핸들러 (문제 해결 로직 적용)
 async function handleVillageChange() {
     const villageId = document.getElementById('villageSelect').value;
-    const villageSelect = document.getElementById('villageSelect'); // select 요소 가져오기
+    const villageSelect = document.getElementById('villageSelect');
 
-    // (NEW) 오버레이 요소 가져오기
     const overlay = document.getElementById('areaConfirmOverlay');
     const areaNameDisplay = document.getElementById('selectedAreaName');
 
-    clearPolygons();
-    // 초기화 시 오버레이 숨김
-    if(overlay) overlay.style.display = 'block';
+    resetUI();
 
     if (!villageId) return;
 
@@ -111,14 +108,32 @@ async function handleVillageChange() {
 
         if (res.ok) {
             const data = await res.json();
+            console.log("Map Data:", data);
 
             if (typeof kakao === 'undefined' || !kakao.maps) {
                 alert("카카오맵 로드 실패");
                 return;
             }
 
-            if (data.points && data.points.length > 0) {
-                const path = data.points.map(p => new kakao.maps.LatLng(p.y, p.x));
+            // 필드명 보정 (coordinates 또는 points 둘 다 대응)
+            const pointsData = data.coordinates || data.points;
+
+            if (pointsData && pointsData.length > 0) {
+
+                // [★ 핵심 수정] 좌표 자동 보정 로직
+                const path = pointsData.map(p => {
+                    // 서버에서 lat, lng 필드로 오는지, x, y로 오는지 확인하여 값 추출
+                    let lat = p.lat !== undefined ? p.lat : p.y;
+                    let lng = p.lng !== undefined ? p.lng : p.x;
+
+                    // [안전장치] 위도(Lat)가 90보다 크면, 위도와 경도가 바뀐 것임. (대한민국 위도는 33~38)
+                    // 이 경우 두 값을 바꿔서 넣어줌.
+                    if (lat > 90) {
+                        return new kakao.maps.LatLng(lng, lat);
+                    }
+                    return new kakao.maps.LatLng(lat, lng);
+                });
+
                 const polygon = new kakao.maps.Polygon({
                     map: map,
                     path: path,
@@ -130,26 +145,39 @@ async function handleVillageChange() {
                     fillOpacity: 0.4
                 });
                 polygons.push(polygon);
-                map.panTo(path[0]); // 폴리곤 중심으로 지도 이동
 
-                // (NEW) 폴리곤 로드 성공 시 하단 오버레이 표시
+                // 지도 범위 재설정 (Bounds)
+                const bounds = new kakao.maps.LatLngBounds();
+                path.forEach(coord => bounds.extend(coord));
+                map.setBounds(bounds);
+
+                // 오버레이 표시
                 if (overlay && areaNameDisplay) {
-                    // 선택된 옵션의 텍스트(동 이름) 가져오기
                     const selectedText = villageSelect.options[villageSelect.selectedIndex].text;
                     areaNameDisplay.innerText = selectedText;
-
-                    overlay.style.display = 'block'; // 오버레이 등장!
+                    overlay.style.display = 'block';
                 }
+            } else {
+                console.warn("좌표 데이터가 비어있습니다.");
             }
         } else {
             alert("구역 정보 로드 실패");
         }
     } catch (e) {
         console.error(e);
-        // 에러 발생 시에도 오버레이는 띄우지 않음
     }
 }
+
 function clearPolygons() {
     polygons.forEach(p => p.setMap(null));
     polygons = [];
+}
+
+// [필수 함수] resetUI 정의
+function resetUI() {
+    clearPolygons();
+    const overlay = document.getElementById('areaConfirmOverlay');
+    if (overlay) {
+        overlay.style.display = 'none';
+    }
 }
