@@ -1,5 +1,11 @@
 let map; // 지도 객체
 let polygons = [];
+let sectorMarker = null;
+let sectorCircle = null;
+let sectorClickListener = null;
+let sectorPolygons = [];
+let sectorOverlays = [];
+let scanMarker = null;
 
 // 1. 지도 초기화
 function initMap(containerId) {
@@ -119,6 +125,8 @@ async function handleVillageChange() {
             const pointsData = data.coordinates || data.points;
 
             if (pointsData && pointsData.length > 0) {
+                window.selectedVillageId = Number(villageId);
+                window.selectedVillageName = villageSelect.options[villageSelect.selectedIndex].text;
 
                 // [★ 핵심 수정] 좌표 자동 보정 로직
                 const path = pointsData.map(p => {
@@ -153,8 +161,7 @@ async function handleVillageChange() {
 
                 // 오버레이 표시
                 if (overlay && areaNameDisplay) {
-                    const selectedText = villageSelect.options[villageSelect.selectedIndex].text;
-                    areaNameDisplay.innerText = selectedText;
+                    areaNameDisplay.innerText = window.selectedVillageName;
                     overlay.style.display = 'block';
                 }
             } else {
@@ -180,4 +187,162 @@ function resetUI() {
     if (overlay) {
         overlay.style.display = 'none';
     }
+    window.selectedVillageId = null;
+    window.selectedVillageName = null;
+    clearSectorPreview();
+    clearSectorPolygons();
 }
+
+function enableSectorPlacement() {
+    if (!map || sectorClickListener) return;
+    sectorClickListener = kakao.maps.event.addListener(map, 'click', function(mouseEvent) {
+        const latlng = mouseEvent.latLng;
+        window.pendingSectorCenter = { lat: latlng.getLat(), lng: latlng.getLng() };
+        drawSectorPreview();
+    });
+}
+
+function disableSectorPlacement() {
+    if (map && sectorClickListener) {
+        kakao.maps.event.removeListener(map, 'click', sectorClickListener);
+        sectorClickListener = null;
+    }
+}
+
+function drawSectorPreview() {
+    if (!map || !window.pendingSectorCenter) return;
+
+    const { lat, lng } = window.pendingSectorCenter;
+    const center = new kakao.maps.LatLng(lat, lng);
+
+    if (sectorMarker) sectorMarker.setMap(null);
+    sectorMarker = new kakao.maps.Marker({ position: center });
+    sectorMarker.setMap(map);
+
+    const radiusText = document.getElementById('radiusVal')?.innerText || "100m";
+    const radius = parseFloat(radiusText);
+    updateSectorPreview(radius);
+}
+
+function updateSectorPreview(radius) {
+    if (!map || !window.pendingSectorCenter || !Number.isFinite(radius)) return;
+    const { lat, lng } = window.pendingSectorCenter;
+    const center = new kakao.maps.LatLng(lat, lng);
+
+    if (sectorCircle) sectorCircle.setMap(null);
+    sectorCircle = new kakao.maps.Circle({
+        center,
+        radius,
+        strokeWeight: 2,
+        strokeColor: '#ff6b6b',
+        strokeOpacity: 0.8,
+        strokeStyle: 'solid',
+        fillColor: '#ff6b6b',
+        fillOpacity: 0.2
+    });
+    sectorCircle.setMap(map);
+}
+
+function clearSectorPreview() {
+    if (sectorMarker) {
+        sectorMarker.setMap(null);
+        sectorMarker = null;
+    }
+    if (sectorCircle) {
+        sectorCircle.setMap(null);
+        sectorCircle = null;
+    }
+    window.pendingSectorCenter = null;
+}
+
+function renderSectorsOnMap(sectors) {
+    clearSectorPolygons();
+    if (!Array.isArray(sectors) || sectors.length === 0) return;
+    if (typeof kakao === 'undefined' || !kakao.maps) return;
+
+    sectors.forEach((sec) => {
+        if (!sec.boundary || sec.boundary.length === 0) return;
+        const path = sec.boundary.map(p => new kakao.maps.LatLng(p.lat, p.lng));
+        const polygon = new kakao.maps.Polygon({
+            map,
+            path,
+            strokeWeight: 2,
+            strokeColor: '#F97316',
+            strokeOpacity: 0.9,
+            strokeStyle: 'solid',
+            fillColor: '#F97316',
+            fillOpacity: 0.15
+        });
+        sectorPolygons.push({ id: sec.id, polygon });
+
+        const center = computeBoundaryCenter(sec.boundary);
+        if (center) {
+            const overlay = new kakao.maps.CustomOverlay({
+                position: new kakao.maps.LatLng(center.lat, center.lng),
+                content: `<div class="sector-label">${sec.sectorName ?? 'Sector'}</div>`
+            });
+            overlay.setMap(map);
+            sectorOverlays.push({ id: sec.id, overlay });
+        }
+    });
+}
+
+function clearSectorPolygons() {
+    sectorPolygons.forEach(p => p.polygon.setMap(null));
+    sectorPolygons = [];
+    sectorOverlays.forEach(o => o.overlay.setMap(null));
+    sectorOverlays = [];
+}
+
+function computeBoundaryCenter(boundary) {
+    if (!Array.isArray(boundary) || boundary.length === 0) return null;
+    let sumLat = 0;
+    let sumLng = 0;
+    boundary.forEach(p => {
+        sumLat += p.lat;
+        sumLng += p.lng;
+    });
+    return { lat: sumLat / boundary.length, lng: sumLng / boundary.length };
+}
+
+function panToSector(lat, lng) {
+    if (!map || lat == null || lng == null) return;
+    map.panTo(new kakao.maps.LatLng(lat, lng));
+}
+
+function highlightSectorById(sectorId) {
+    if (!sectorId) return;
+    sectorPolygons.forEach(({ id, polygon }) => {
+        if (id === sectorId) {
+            polygon.setOptions({
+                strokeColor: '#10B981',
+                fillColor: '#10B981',
+                fillOpacity: 0.25
+            });
+        } else {
+            polygon.setOptions({
+                strokeColor: '#F97316',
+                fillColor: '#F97316',
+                fillOpacity: 0.15
+            });
+        }
+    });
+}
+
+function showScanMarker(lat, lng) {
+    if (!map || lat == null || lng == null) return;
+    const position = new kakao.maps.LatLng(lat, lng);
+    if (scanMarker) scanMarker.setMap(null);
+    scanMarker = new kakao.maps.Marker({ position });
+    scanMarker.setMap(map);
+    map.panTo(position);
+}
+
+window.enableSectorPlacement = enableSectorPlacement;
+window.disableSectorPlacement = disableSectorPlacement;
+window.updateSectorPreview = updateSectorPreview;
+window.renderSectorsOnMap = renderSectorsOnMap;
+window.drawSectorPreview = drawSectorPreview;
+window.panToSector = panToSector;
+window.highlightSectorById = highlightSectorById;
+window.showScanMarker = showScanMarker;

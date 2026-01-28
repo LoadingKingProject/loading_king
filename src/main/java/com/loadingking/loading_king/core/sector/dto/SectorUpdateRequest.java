@@ -1,11 +1,8 @@
 package com.loadingking.loading_king.core.sector.dto;
 
-public record SectorRequest(
+public record SectorUpdateRequest(
         String name,
-        double lat,
-        double lng,
         double radius,
         Long villageId
 ) {
-
 }

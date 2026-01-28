@@ -45,27 +45,24 @@
             </div>
             <div style="display:flex; gap:5px; margin-bottom:10px;">
                 <input type="text" id="sectorNameInput" class="input-field" placeholder="구역명 (예: A)" style="flex:1; margin:0;">
-                <button class="btn btn-accent" onclick="addSector()" style="width:80px;">생성</button>
+                <button id="sectorActionBtn" class="btn btn-accent" onclick="createSectorFromPin()" style="width:110px;">완료</button>
             </div>
             <input type="range" min="50" max="500" step="10" value="100" style="width:100%;" oninput="updateRadius(this.value)">
         </div>
 
-        <div class="container" style="position:absolute; bottom:0; left:0; right:0; height:35%; background:white; border-radius:20px 20px 0 0; padding:20px; overflow-y:auto;">
+        <div class="container" style="position:absolute; bottom:0; left:0; right:0; height:30%; background:rgba(30, 30, 30, 0.95); border-radius:20px 20px 0 0; padding:16px; overflow:hidden; color:white; z-index:150;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
                 <span style="font-weight:bold;">생성된 섹터 목록</span>
                 <span id="sectorCountBadge" class="step-badge">0개</span>
             </div>
-            <div id="createdSectorList" style="margin-bottom:20px;">
-                <p style="text-align:center; color:#999; font-size:0.9rem;">지도에 핀을 꽂아<br>구역을 나눠주세요.</p>
+            <div id="createdSectorList" class="sector-list-horizontal">
+                <p style="text-align:center; color:#999; font-size:0.9rem;">지도에서 핀을 찍고 반경을 조절하세요.</p>
             </div>
-            <button class="btn btn-primary" onclick="goToPhase('setup4')">
-                다음: 순서 설정 (Set Order)
+<!--            <button class="btn btn-primary" onclick="goToPhase('setup4')">-->
+            <button class="btn btn-primary" onclick="goToPhase('op_scan')">
+                다음: 스캔 시작 (Scan)
             </button>
-        </div>
 
-        <div id="radiusCircle" style="position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); width:200px; height:200px; border:2px dashed red; border-radius:50%; pointer-events:none; z-index:1; opacity:0.5;"></div>
-        <div style="position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); color:red; font-size:1.5rem; pointer-events:none; z-index:2;">
-            <i class="fa-solid fa-plus"></i>
         </div>
     </section>
 </th:block>

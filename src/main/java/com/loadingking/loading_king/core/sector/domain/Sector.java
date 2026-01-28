@@ -19,6 +19,12 @@ public class Sector {
     @Column(name = "sector_name", nullable = false)
     private String sectorName; // 섹터 이름 (예: 잠실본동)
 
+    @Column(name = "village_id")
+    private Long villageId;
+
+    @Column(name = "village_name")
+    private String villageName;
+
     @Column(name = "boundary", nullable = false)
     private Polygon boundary; // 행정동 경계
 
@@ -64,6 +70,14 @@ public class Sector {
         return sectorName;
     }
 
+    public Long getVillageId() {
+        return villageId;
+    }
+
+    public String getVillageName() {
+        return villageName;
+    }
+
     public Polygon getBoundary() {
         return boundary;
     }
@@ -71,6 +85,24 @@ public class Sector {
     public Point getCenterCoordinate() {
         return centerCoordinate;
     }
+
+    public void updateName(String sectorName) {
+        this.sectorName = sectorName;
+    }
+
+    public void updateBoundary(Polygon boundary, Point centerCoordinate) {
+        this.boundary = boundary;
+        this.centerCoordinate = centerCoordinate;
+    }
+
+    public void updateVillageId(Long villageId) {
+        this.villageId = villageId;
+    }
+
+    public void updateVillageName(String villageName) {
+        this.villageName = villageName;
+    }
+
 
     private Sector(Builder builder) {
         this.sectorName = builder.sectorName;

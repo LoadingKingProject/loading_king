@@ -2,6 +2,8 @@ package com.loadingking.loading_king.core.sector.application;
 
 import com.loadingking.loading_king.core.sector.domain.Sector;
 import com.loadingking.loading_king.core.sector.domain.SectorRepository;
+import com.loadingking.loading_king.core.area.domain.repository.VillageRepository;
+import com.loadingking.loading_king.core.user.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,6 +31,12 @@ class SectorServiceTest {
 
     @Mock
     private SectorRepository sectorRepository;
+
+    @Mock
+    private VillageRepository villageRepository;
+
+    @Mock
+    private UserRepository userRepository;
 
     @InjectMocks
     private SectorService sectorService;

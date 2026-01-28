@@ -1,3 +1,54 @@
+<!--<!DOCTYPE html>-->
+<!--<html xmlns:th="http://www.thymeleaf.org">-->
+<!--<th:block th:fragment="workScanFragment">-->
+<!--    <section id="op_scan" class="phase solid-bg" style="display:none;">-->
+<!--        <header class="header">-->
+<!--            <h1>물품 스캔 (Scanning)</h1>-->
+<!--            <span class="step-badge" style="background:var(&#45;&#45;danger-color); color:white;">Action</span>-->
+<!--        </header>-->
+<!--        <div class="container">-->
+<!--            <div class="scan-box" id="scanView">-->
+<!--                <div class="scan-line"></div>-->
+<!--                <i class="fa-solid fa-barcode" style="font-size:3rem; color:#555; margin-bottom:15px;"></i>-->
+<!--                <p>물품 바코드를 스캔하세요</p>-->
+<!--            </div>-->
+<!--            <div id="scanResultCard" class="card" style="display:none; text-align:center; border:2px solid var(&#45;&#45;accent-color);">-->
+<!--                <p style="margin:0; color:var(&#45;&#45;text-sub);">구역 배정 결과</p>-->
+<!--                <h1 id="scanResultTitle" style="font-size:3rem; margin:10px 0; color:var(&#45;&#45;accent-color);">A</h1>-->
+<!--                <p id="scanResultDesc" style="margin:0;">A구역 (아파트)</p>-->
+<!--            </div>-->
+<!--            <div style="display:flex; justify-content:space-between; margin-bottom:10px; color:var(&#45;&#45;text-sub); font-size:0.9rem;">-->
+<!--                <span>스캔 현황</span>-->
+<!--                <span id="scanTotalCount">0개</span>-->
+<!--            </div>-->
+<!--            <button class="btn btn-accent" onclick="simulateScanAction()">-->
+<!--                <i class="fa-solid fa-camera"></i> SCAN (Simulation)-->
+<!--            </button>-->
+<!--            <button class="btn btn-primary" style="margin-top:10px;" onclick="goToPhase('op_load')">-->
+<!--                분류 완료 & 적재 모드-->
+<!--            </button>-->
+<!--        </div>-->
+<!--    </section>-->
+
+<!--    <section id="op_load" class="phase solid-bg" style="display:none;">-->
+<!--        <header class="header">-->
+<!--            <h1>적재 가이드 (Loading)</h1>-->
+<!--            <span class="step-badge">LIFO</span>-->
+<!--        </header>-->
+<!--        <div class="container">-->
+<!--            <div style="background: rgba(239, 68, 68, 0.1); padding:15px; border-radius:12px; margin-bottom:20px; color:var(&#45;&#45;danger-color);">-->
+<!--                <i class="fa-solid fa-truck-ramp-box"></i>-->
+<!--                <b> 역순 적재:</b> 안쪽부터 채우세요.-->
+<!--            </div>-->
+<!--            <div id="loadingGuideList"></div>-->
+<!--            <button class="btn btn-success" onclick="goToPhase('op_deliver')">-->
+<!--                적재 완료 & 배송 시작-->
+<!--            </button>-->
+<!--        </div>-->
+<!--    </section>-->
+<!--</th:block>-->
+<!--</html>-->
+
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <th:block th:fragment="workScanFragment">
@@ -6,27 +57,85 @@
             <h1>물품 스캔 (Scanning)</h1>
             <span class="step-badge" style="background:var(--danger-color); color:white;">Action</span>
         </header>
+
         <div class="container">
-            <div class="scan-box" id="scanView">
-                <div class="scan-line"></div>
-                <i class="fa-solid fa-barcode" style="font-size:3rem; color:#555; margin-bottom:15px;"></i>
-                <p>물품 바코드를 스캔하세요</p>
+
+            <div class="scan-box" id="scanView" style="position:relative; overflow:hidden;">
+                <video id="cameraPreview"
+                       playsinline muted autoplay
+                       style="width:100%; height:260px; object-fit:cover; border-radius:14px; background:#111; display:none;">
+                </video>
+                <canvas id="qrCanvas" style="display:none;"></canvas>
+
+                <div id="cameraPlaceholder" style="padding:30px 0; text-align:center;">
+                    <i class="fa-solid fa-barcode" style="font-size:3rem; color:#555; margin-bottom:15px;"></i>
+                    <p style="margin:0;">물품 바코드를 스캔하세요</p>
+                    <p style="margin:6px 0 0; color:var(--text-sub); font-size:0.9rem;">
+                        아래 <b>카메라 시작</b> 버튼을 누르면 권한을 요청합니다.
+                    </p>
+                </div>
+
+                <div class="scan-line" style="position:absolute; left:0; right:0; top:0;"></div>
+
+                <div id="scanStatusBadge"
+                     style="position:absolute; top:12px; left:12px; background:rgba(0,0,0,0.55); color:#fff; padding:6px 10px; border-radius:999px; font-size:0.85rem; display:none;">
+                    준비됨
+                </div>
             </div>
-            <div id="scanResultCard" class="card" style="display:none; text-align:center; border:2px solid var(--accent-color);">
+
+            <div id="cameraOverlay" class="camera-overlay" style="display:none;">
+                <video id="cameraOverlayPreview" playsinline muted autoplay></video>
+                <button class="btn btn-primary camera-overlay-exit" type="button" onclick="goToPhase('op_load')">스캔 종료</button>
+                <div class="camera-overlay-panel">
+                    <span>카메라 스캔 중</span>
+                    <span id="cameraOverlayResult" style="color:var(--accent-color); font-weight:700;"></span>
+                    <button class="btn btn-primary" type="button" id="btnToggleOverlay">지도 보기</button>
+                </div>
+            </div>
+
+            <div id="scanLastAssigned" class="scan-last-assigned" style="display:none;">
+                최근 배정 섹터: <span id="scanLastAssignedValue">-</span>
+            </div>
+
+            <button id="btnShowOverlay" class="btn btn-primary camera-show-overlay" type="button" style="display:none;">
+                카메라 보기
+            </button>
+
+            <div id="scanResultCard" class="card"
+                 style="display:none; text-align:center; border:2px solid var(--accent-color); margin-top:12px;">
                 <p style="margin:0; color:var(--text-sub);">구역 배정 결과</p>
-                <h1 id="scanResultTitle" style="font-size:3rem; margin:10px 0; color:var(--accent-color);">A</h1>
-                <p id="scanResultDesc" style="margin:0;">A구역 (아파트)</p>
+                <h1 id="scanResultTitle" style="font-size:3rem; margin:10px 0; color:var(--accent-color);">-</h1>
+                <p id="scanResultDesc" style="margin:0;">-</p>
+                <p id="scanResultRaw" style="margin:10px 0 0; font-size:0.85rem; color:var(--text-sub); word-break:break-all;"></p>
             </div>
-            <div style="display:flex; justify-content:space-between; margin-bottom:10px; color:var(--text-sub); font-size:0.9rem;">
+
+            <div style="display:flex; justify-content:space-between; margin:14px 0 10px; color:var(--text-sub); font-size:0.9rem;">
                 <span>스캔 현황</span>
                 <span id="scanTotalCount">0개</span>
             </div>
-            <button class="btn btn-accent" onclick="simulateScanAction()">
-                <i class="fa-solid fa-camera"></i> SCAN (Simulation)
-            </button>
+
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <button class="btn btn-accent" id="btnStartCamera" type="button">
+                    <i class="fa-solid fa-camera"></i> 카메라 시작
+                </button>
+
+                <button class="btn btn-primary" id="btnStopCamera" type="button" disabled>
+                    <i class="fa-solid fa-stop"></i> 중지
+                </button>
+
+                <button class="btn" id="btnSimulateScan" type="button">
+                    <i class="fa-solid fa-flask"></i> SCAN (Simulation)
+                </button>
+            </div>
+
             <button class="btn btn-primary" style="margin-top:10px;" onclick="goToPhase('op_load')">
                 분류 완료 & 적재 모드
             </button>
+
+            <p id="scanHint" style="margin-top:10px; color:var(--text-sub); font-size:0.9rem; line-height:1.4;">
+                ※ 모바일에서는 HTTPS 환경에서 카메라가 더 안정적으로 동작합니다.
+            </p>
+
         </div>
     </section>
 
