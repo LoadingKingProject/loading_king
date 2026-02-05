@@ -267,6 +267,37 @@ p.sub-title {
     margin-bottom: 10px; border: 1px solid var(--border-color);
 }
 
+.sector-list-horizontal {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding-bottom: 6px;
+}
+
+.sector-list-horizontal .list-item {
+    min-width: 220px;
+    margin-bottom: 0;
+}
+
+.sector-list-horizontal::-webkit-scrollbar {
+    height: 6px;
+}
+.sector-list-horizontal::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 999px;
+}
+
+.scan-last-assigned {
+    margin-top: 12px;
+    background: rgba(30, 30, 30, 0.9);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 10px 14px;
+    border-radius: 999px;
+    text-align: center;
+    font-weight: 700;
+}
+
 /* 스캔 UI */
 .scan-box {
     flex: 1; border: 2px dashed #666; border-radius: 16px;
@@ -402,4 +433,95 @@ select:focus {
 @keyframes slideUp {
     from { transform: translateY(100%); opacity: 0; }
     to { transform: translateY(0); opacity: 1; }
+}
+
+/* 카메라 전체화면 오버레이 */
+.camera-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(10, 10, 10, 0.92);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.camera-overlay video {
+    width: min(90vw, 520px);
+    height: min(70vh, 520px);
+    object-fit: cover;
+    border-radius: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+}
+
+.camera-overlay-panel {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(30, 30, 30, 0.85);
+    color: #fff;
+    padding: 10px 16px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.camera-overlay-exit {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    width: auto;
+    padding: 8px 14px;
+}
+
+.camera-show-overlay {
+    position: fixed;
+    right: 16px;
+    bottom: 90px;
+    width: auto;
+    padding: 10px 14px;
+    z-index: 5000;
+}
+
+.scan-last-assigned {
+    position: fixed;
+    left: 50%;
+    bottom: 20px;
+    transform: translateX(-50%);
+    z-index: 4000;
+    width: max-content;
+    max-width: 90vw;
+}
+
+/* 섹터 라벨 */
+.sector-label {
+    background: rgba(30, 30, 30, 0.85);
+    color: #fff;
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
+    white-space: nowrap;
+}
+
+/* 섹터 설정 카드 */
+.map-overlay-card {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    right: 20px;
+    z-index: 200;
+    background: rgba(30, 30, 30, 0.95);
+    backdrop-filter: blur(10px);
+    padding: 20px;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    border: 1px solid var(--border-color);
+    max-width: 420px;
+    margin: 0 auto;
 }

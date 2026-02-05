@@ -4,18 +4,20 @@ package com.loadingking.loading_king.core.logistics.application;
 import com.loadingking.loading_king.core.sector.application.SectorService;
 import com.loadingking.loading_king.core.sector.domain.Sector;
 import com.loadingking.loading_king.core.user.domain.User;
+import com.loadingking.loading_king.core.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.locationtech.jts.geom.Point;
-import java.awt.*;
 
 @Service
 public class DispatchService {
 
     private final SectorService sectorService;
+    private final UserRepository userRepository;
 
-    public DispatchService(SectorService sectorService) {
+    public DispatchService(SectorService sectorService, UserRepository userRepository) {
         this.sectorService = sectorService;
+        this.userRepository = userRepository;
     }
 
 
@@ -26,7 +28,9 @@ public class DispatchService {
     @Transactional(readOnly = true)
     public Long dispatch(User driver, Point itemLocation) {
 
-        var sectorIds = driver.getSectors();
+        User managed = userRepository.findById(driver.getId())
+                .orElseThrow(() -> new IllegalArgumentException("사용자 정보를 찾을 수 없습니다."));
+        var sectorIds = managed.getSectors();
 
         if (sectorIds == null || sectorIds.isEmpty()) {
             return null; // 운송할 섹터가 없는 경우 null 반환

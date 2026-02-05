@@ -6,6 +6,9 @@ public class ScanRequestDto {
     private String barcode;
     private String address;
 
+    public ScanRequestDto() {
+    }
+
     public ScanRequestDto(String barcode, String address) {
         this.barcode = barcode;
         this.address = address;
@@ -17,5 +20,13 @@ public class ScanRequestDto {
 
     public String getAddress() {
         return address;
+    }
+
+    public void setBarcode(String barcode) {
+        this.barcode = barcode;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 }

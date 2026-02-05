@@ -85,6 +85,27 @@ public class User {
         return sectors;
     }
 
+    public void addSector(Long sectorId) {
+        if (sectorId == null) {
+            return;
+        }
+        this.sectors.add(sectorId);
+    }
+
+    public void replaceSectors(List<Long> sectorIds) {
+        this.sectors.clear();
+        if (sectorIds != null) {
+            this.sectors.addAll(sectorIds);
+        }
+    }
+
+    public void removeSector(Long sectorId) {
+        if (sectorId == null) {
+            return;
+        }
+        this.sectors.removeIf(id -> id.equals(sectorId));
+    }
+
 
     public static User createSocialUser(String email, Role role) {
         return User.builder()
