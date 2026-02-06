@@ -525,3 +525,30 @@ select:focus {
     max-width: 420px;
     margin: 0 auto;
 }
+
+.scan-assigned-popup {
+    position: fixed;
+    top: 72px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 6000;
+    background: rgba(16, 185, 129, 0.95);
+    color: #fff;
+    padding: 10px 14px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+    font-size: 0.9rem;
+}
+
+.scan-order-controls {
+    display: flex;
+    gap: 8px;
+}
+
+.scan-order-btn {
+    width: auto;
+    min-width: 56px;
+    padding: 10px 12px;
+    margin: 0;
+}

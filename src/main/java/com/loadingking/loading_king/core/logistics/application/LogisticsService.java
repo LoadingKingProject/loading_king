@@ -4,6 +4,7 @@ import com.loadingking.loading_king.core.logistics.domain.model.Item;
 import com.loadingking.loading_king.core.logistics.repository.ItemRepository;
 import com.loadingking.loading_king.core.logistics.domain.model.DeliveryJob;
 import com.loadingking.loading_king.core.logistics.repository.DeliveryJobRepository;
+import com.loadingking.loading_king.core.logistics.dto.ScanItemViewDto;
 import com.loadingking.loading_king.core.sector.application.SectorService;
 import com.loadingking.loading_king.core.logistics.dto.ScanResponseDto;
 import com.loadingking.loading_king.global.util.GeometryUtils;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Collections;
 
 
 @Service
@@ -70,6 +72,22 @@ public class LogisticsService {
         boolean isAssigned = (sectorId != null);
 
         return new ScanResponseDto(barcode, sectorId, sectorName, isAssigned, parsed.lat, parsed.lng);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ScanItemViewDto> getActiveJobItems(User user) {
+        return deliveryJobRepository.findActiveJobByDriverId(user.getId())
+                .map(job -> itemRepository.findByDeliveryJobIdOrderByIdDesc(job.getId())
+                        .stream()
+                        .map(item -> new ScanItemViewDto(
+                                item.getId(),
+                                item.getBarcode(),
+                                item.getLocation() != null ? item.getLocation().getY() : null,
+                                item.getLocation() != null ? item.getLocation().getX() : null,
+                                item.getSectorId()
+                        ))
+                        .toList())
+                .orElse(Collections.emptyList());
     }
 
     private ParsedBarcode parseBarcode(String raw, String fallbackAddress) {

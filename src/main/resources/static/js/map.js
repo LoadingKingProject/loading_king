@@ -6,6 +6,7 @@ let sectorClickListener = null;
 let sectorPolygons = [];
 let sectorOverlays = [];
 let scanMarker = null;
+let savedItemMarkers = [];
 
 // 1. 지도 초기화
 function initMap(containerId) {
@@ -338,6 +339,25 @@ function showScanMarker(lat, lng) {
     map.panTo(position);
 }
 
+function clearSavedItemMarkers() {
+    savedItemMarkers.forEach((marker) => marker.setMap(null));
+    savedItemMarkers = [];
+}
+
+function showSavedItemMarkers(items) {
+    if (!map) return;
+    clearSavedItemMarkers();
+    if (!Array.isArray(items)) return;
+
+    items.forEach((item) => {
+        if (item?.lat == null || item?.lng == null) return;
+        const position = new kakao.maps.LatLng(item.lat, item.lng);
+        const marker = new kakao.maps.Marker({ position });
+        marker.setMap(map);
+        savedItemMarkers.push(marker);
+    });
+}
+
 window.enableSectorPlacement = enableSectorPlacement;
 window.disableSectorPlacement = disableSectorPlacement;
 window.updateSectorPreview = updateSectorPreview;
@@ -346,3 +366,5 @@ window.drawSectorPreview = drawSectorPreview;
 window.panToSector = panToSector;
 window.highlightSectorById = highlightSectorById;
 window.showScanMarker = showScanMarker;
+window.showSavedItemMarkers = showSavedItemMarkers;
+window.clearSavedItemMarkers = clearSavedItemMarkers;
