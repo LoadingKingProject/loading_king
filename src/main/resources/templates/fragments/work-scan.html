@@ -112,9 +112,15 @@
                 <p id="scanResultRaw" style="margin:10px 0 0; font-size:0.85rem; color:var(--text-sub); word-break:break-all;"></p>
             </div>
 
-            <div style="display:flex; justify-content:space-between; margin:14px 0 10px; color:var(--text-sub); font-size:0.9rem;">
-                <span>스캔 현황</span>
-                <span id="scanTotalCount">0개</span>
+            <!-- 섹터별 현황판 -->
+            <div id="sectorDashboard" class="sector-dashboard" style="margin:14px 0 10px;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:8px; color:var(--text-sub); font-size:0.9rem;">
+                    <span>섹터별 현황</span>
+                    <span id="scanTotalCount">0개</span>
+                </div>
+                <div id="sectorDashboardCards" class="sector-dashboard-cards">
+                    <!-- JS에서 동적으로 채워짐 -->
+                </div>
             </div>
 
             <div style="display:flex; gap:10px; flex-wrap:wrap;">
@@ -157,16 +163,25 @@
 
     <section id="op_scan_order" class="phase solid-bg" style="display:none;">
         <header class="header">
-            <h1>배정 순서 지정</h1>
+            <h1>배송 순서 지정</h1>
             <span class="step-badge">Order</span>
         </header>
         <div class="container">
-            <p style="color:var(--text-sub); margin-bottom:14px;">
-                배송 순서를 위에서 아래로 정하세요. 적재 순서는 자동으로 역순 계산됩니다.
+            <p style="color:var(--text-sub); margin-bottom:14px; font-size:0.9rem;">
+                꾹 눌러서 드래그하여 배송 순서를 변경하세요.<br>
+                위에 있을수록 먼저 배송합니다.
             </p>
+
+            <div id="scanOrderLoading" style="text-align:center; padding:40px 0; color:var(--text-sub); display:none;">
+                섹터 목록을 불러오는 중...
+            </div>
+            <div id="scanOrderEmpty" style="text-align:center; padding:40px 0; color:var(--text-sub); display:none;">
+                생성된 섹터가 없습니다.<br>먼저 섹터를 설정해주세요.
+            </div>
+
             <div id="scanOrderList" style="margin-bottom:12px;"></div>
 
-            <div class="card" style="margin-bottom:12px;">
+            <div id="scanUnassignedCard" class="card" style="margin-bottom:12px; display:none;">
                 <div style="font-weight:700; margin-bottom:8px; color:var(--danger-color);">미배정 목록</div>
                 <div id="scanUnassignedList" style="color:var(--text-sub); font-size:0.9rem;">
                     미배정 항목 없음
@@ -175,7 +190,7 @@
             </div>
 
             <button class="btn btn-success" id="btnCompleteOrder" type="button">
-                배정 순서 지정 완료
+                순서 확정 → 적재 가이드
             </button>
             <button class="btn btn-dark" style="margin-top:10px;" type="button" onclick="goToPhase('op_scan')">
                 스캔 화면으로 돌아가기

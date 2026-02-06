@@ -21,8 +21,12 @@
     const popup = document.getElementById("assignedPopup");
     const popupSector = document.getElementById("assignedPopupSector");
     const orderList = document.getElementById("scanOrderList");
+    const orderLoading = document.getElementById("scanOrderLoading");
+    const orderEmpty = document.getElementById("scanOrderEmpty");
+    const unassignedCard = document.getElementById("scanUnassignedCard");
     const unassignedList = document.getElementById("scanUnassignedList");
     const unassignedHint = document.getElementById("scanUnassignedHint");
+    const dashboardCards = document.getElementById("sectorDashboardCards");
 
     const resultCard = document.getElementById("scanResultCard");
     const resultTitle = document.getElementById("scanResultTitle");
@@ -176,6 +180,7 @@
     }
 
     async function fillAssignedSectorsFromSavedItems() {
+        // 이미 데이터가 있으면 건너뜀 (forceFill에서는 미리 비워서 호출)
         if (assignedSectors.length > 0) return;
 
         // 1. 모든 섹터 목록 가져오기
@@ -224,61 +229,115 @@
         const existing = assignedSectors.find((item) => item.sectorId === sectorId);
         if (existing) {
             existing.count += 1;
+            updateDashboardCount(sectorId, existing.count);
             return;
         }
         assignedSectors.push({ sectorId, sectorName, count: 1 });
+        renderSectorDashboard();
     }
 
     function addUnassigned(raw) {
         unassignedItems.push({ raw, scannedAt: new Date().toISOString() });
     }
 
+    let sortableInstance = null;
+
     function renderOrderEditor() {
         if (!orderList) return;
+        if (orderLoading) orderLoading.style.display = "none";
+        if (orderEmpty) orderEmpty.style.display = "none";
+
         if (assignedSectors.length === 0) {
-            orderList.innerHTML = `<p style="color:var(--text-sub);">배정된 섹터가 없습니다.</p>`;
+            orderList.innerHTML = "";
+            if (orderEmpty) orderEmpty.style.display = "block";
             return;
         }
 
         orderList.innerHTML = assignedSectors.map((item, idx) => `
-            <div class="list-item">
-                <div style="display:flex; align-items:center;">
-                    <span style="color:var(--primary-color); font-weight:700; margin-right:12px;">${idx + 1}</span>
-                    <div>
-                        <div style="font-weight:700;">${item.sectorName}</div>
-                        <div style="font-size:0.85rem; color:var(--text-sub);">스캔 ${item.count}건</div>
-                    </div>
+            <div class="order-drag-item" data-sector-id="${item.sectorId}">
+                <div class="order-drag-handle">
+                    <i class="fa-solid fa-grip-vertical"></i>
                 </div>
-                <div class="scan-order-controls">
-                    <button class="btn btn-dark scan-order-btn" data-dir="up" data-idx="${idx}" type="button">위</button>
-                    <button class="btn btn-dark scan-order-btn" data-dir="down" data-idx="${idx}" type="button">아래</button>
+                <span class="order-drag-number">${idx + 1}</span>
+                <div class="order-drag-info">
+                    <div class="order-drag-name">${item.sectorName}</div>
+                    <div class="order-drag-count">${item.count}건 스캔됨</div>
                 </div>
             </div>
         `).join("");
+
+        // SortableJS 초기화
+        if (sortableInstance) {
+            sortableInstance.destroy();
+            sortableInstance = null;
+        }
+        if (typeof Sortable !== "undefined") {
+            sortableInstance = Sortable.create(orderList, {
+                animation: 200,
+                ghostClass: "order-drag-ghost",
+                chosenClass: "order-drag-chosen",
+                handle: ".order-drag-item",
+                onEnd: function () {
+                    // DOM 순서에 맞춰 assignedSectors 재정렬
+                    const items = orderList.querySelectorAll(".order-drag-item");
+                    const reordered = [];
+                    items.forEach((el) => {
+                        const sid = el.dataset.sectorId;
+                        const found = assignedSectors.find(
+                            (s) => String(s.sectorId) === String(sid)
+                        );
+                        if (found) reordered.push(found);
+                    });
+                    assignedSectors.length = 0;
+                    reordered.forEach((s) => assignedSectors.push(s));
+                    // 번호 업데이트
+                    items.forEach((el, idx) => {
+                        const numEl = el.querySelector(".order-drag-number");
+                        if (numEl) numEl.textContent = idx + 1;
+                    });
+                }
+            });
+        }
     }
 
     function renderUnassignedList() {
         if (!unassignedList || !unassignedHint) return;
         if (unassignedItems.length === 0) {
-            unassignedList.textContent = "미배정 항목 없음";
-            unassignedHint.textContent = "";
+            if (unassignedCard) unassignedCard.style.display = "none";
             return;
         }
+        if (unassignedCard) unassignedCard.style.display = "block";
         unassignedList.innerHTML = unassignedItems
             .slice(-5)
             .reverse()
             .map((item, idx) => `<div>${idx + 1}. ${item.raw || "-"}</div>`)
             .join("");
-        unassignedHint.textContent = "해당 배송지역(Village) 내 매핑 가능한 Sector가 없으면 미배정으로 분류됩니다.";
+        unassignedHint.textContent = "매핑 가능한 Sector가 없으면 미배정으로 분류됩니다.";
     }
 
-    function moveAssignedSector(idx, direction) {
-        if (direction === "up" && idx > 0) {
-            [assignedSectors[idx - 1], assignedSectors[idx]] = [assignedSectors[idx], assignedSectors[idx - 1]];
-        } else if (direction === "down" && idx < assignedSectors.length - 1) {
-            [assignedSectors[idx], assignedSectors[idx + 1]] = [assignedSectors[idx + 1], assignedSectors[idx]];
+    function renderSectorDashboard() {
+        if (!dashboardCards) return;
+        if (assignedSectors.length === 0) {
+            dashboardCards.innerHTML = "";
+            return;
         }
-        renderOrderEditor();
+        dashboardCards.innerHTML = assignedSectors.map((item) => `
+            <div class="sector-dash-card" data-sector-id="${item.sectorId}">
+                <div class="sector-dash-name">${item.sectorName}</div>
+                <div class="sector-dash-count">${item.count}</div>
+            </div>
+        `).join("");
+    }
+
+    function updateDashboardCount(sectorId, newCount) {
+        if (!dashboardCards) return;
+        const card = dashboardCards.querySelector(`[data-sector-id="${sectorId}"]`);
+        if (card) {
+            const countEl = card.querySelector(".sector-dash-count");
+            if (countEl) countEl.textContent = newCount;
+            card.classList.add("sector-dash-pulse");
+            setTimeout(() => card.classList.remove("sector-dash-pulse"), 600);
+        }
     }
 
     async function postScanItem(raw) {
@@ -548,9 +607,6 @@
             } catch (e) {
                 console.error("fillAssignedSectors error:", e);
             }
-            if (assignedSectors.length === 0) {
-                setHint("배정된 섹터가 없어 순서 지정 목록이 비어 있습니다.", true);
-            }
             if (typeof goToPhase === "function") {
                 goToPhase("op_scan_order");
             }
@@ -572,15 +628,6 @@
             goToPhase("op_load");
         }
     }
-
-    orderList?.addEventListener("click", (event) => {
-        const button = event.target.closest(".scan-order-btn");
-        if (!button) return;
-        const idx = Number(button.dataset.idx);
-        const dir = button.dataset.dir;
-        if (!Number.isInteger(idx)) return;
-        moveAssignedSector(idx, dir);
-    });
 
     btnStart?.addEventListener("click", startCamera);
     btnStop?.addEventListener("click", stopCamera);
@@ -605,6 +652,21 @@
         renderOrderEditor();
         renderUnassignedList();
     };
+    window.forceFillAndRenderOrder = async () => {
+        if (orderLoading) orderLoading.style.display = "block";
+        if (orderEmpty) orderEmpty.style.display = "none";
+        if (orderList) orderList.innerHTML = "";
+        try {
+            // assignedSectors가 비어있으면 강제로 다시 로드
+            assignedSectors.length = 0;
+            await fillAssignedSectorsFromSavedItems();
+        } catch (e) {
+            console.error("forceFill error:", e);
+        }
+        renderOrderEditor();
+        renderUnassignedList();
+    };
+    window.renderSectorDashboard = renderSectorDashboard;
 
     refreshSavedItems();
 })();

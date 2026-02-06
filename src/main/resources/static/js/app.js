@@ -47,7 +47,10 @@ function goToPhase(phaseId) {
         const showOverlayBtn = document.getElementById('btnShowOverlay');
         if (cameraOverlay) cameraOverlay.style.display = 'none';
         if (showOverlayBtn) showOverlayBtn.style.display = 'none';
-        if (typeof window.renderScanOrderEditor === 'function') {
+        // 항상 서버에서 섹터 데이터를 강제로 로드하여 빈 화면 방지
+        if (typeof window.forceFillAndRenderOrder === 'function') {
+            window.forceFillAndRenderOrder();
+        } else if (typeof window.renderScanOrderEditor === 'function') {
             window.renderScanOrderEditor();
         }
     }
@@ -57,6 +60,9 @@ function goToPhase(phaseId) {
         window.startScanCamera();
         if (typeof window.loadSavedItemsForScan === 'function') {
             window.loadSavedItemsForScan();
+        }
+        if (typeof window.renderSectorDashboard === 'function') {
+            window.renderSectorDashboard();
         }
     }
     if (phaseId === 'phase_sector' && typeof enableSectorPlacement === 'function') {
