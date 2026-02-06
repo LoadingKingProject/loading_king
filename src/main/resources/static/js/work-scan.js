@@ -177,24 +177,45 @@
 
     async function fillAssignedSectorsFromSavedItems() {
         if (assignedSectors.length > 0) return;
-        if (!savedItems.some((item) => item?.sectorId != null)) return;
 
-        sectorNameById = await fetchSectorNameMap();
-        const grouped = new Map();
+        // 1. 모든 섹터 목록 가져오기
+        const headers = (typeof getHeaders === "function")
+            ? getHeaders()
+            : { "Content-Type": "application/json" };
+        let allSectors = [];
+        try {
+            const res = await fetch(`${API_BASE}/sectors`, { method: "GET", headers });
+            if (res.ok) {
+                allSectors = await res.json();
+                if (!Array.isArray(allSectors)) allSectors = [];
+            }
+        } catch (e) {
+            console.error("Failed to fetch sectors:", e);
+        }
+
+        // 2. savedItems에서 sectorId별 count 계산
+        const countBySectorId = new Map();
         savedItems.forEach((item) => {
             if (item?.sectorId == null) return;
-            const sectorId = item.sectorId;
-            const prev = grouped.get(sectorId) ?? 0;
-            grouped.set(sectorId, prev + 1);
+            const prev = countBySectorId.get(item.sectorId) ?? 0;
+            countBySectorId.set(item.sectorId, prev + 1);
         });
 
-        grouped.forEach((count, sectorId) => {
+        // 3. 모든 섹터를 assignedSectors에 추가 (count와 함께)
+        allSectors.forEach((sector) => {
+            if (sector?.id == null) return;
             assignedSectors.push({
-                sectorId,
-                sectorName: sectorNameById[sectorId] ?? `Sector-${sectorId}`,
-                count
+                sectorId: sector.id,
+                sectorName: sector.sectorName ?? `Sector-${sector.id}`,
+                count: countBySectorId.get(sector.id) ?? 0
             });
         });
+
+        // sectorNameById도 업데이트 (다른 곳에서 사용할 수 있으므로)
+        sectorNameById = allSectors.reduce((acc, sector) => {
+            if (sector?.id != null) acc[sector.id] = sector.sectorName ?? `Sector-${sector.id}`;
+            return acc;
+        }, {});
     }
 
     function addAssignedSector(result) {
