@@ -1,12 +1,10 @@
 let sectors = [];
 let scannedCounts = {};
+window.scanDeliveryOrder = window.scanDeliveryOrder || [];
 
 
 // --- [Navigation Logic] ---
 function goToPhase(phaseId) {
-
-    alert("goToPhase 실행: " + phaseId);
-
     if (!jwtToken) {
         alert("로그인이 필요합니다.");
         window.location.href = '/login'; // 로그인 페이지로 튕겨내기
@@ -25,27 +23,41 @@ function goToPhase(phaseId) {
     if (phaseId === 'setup4') {
         renderOrderList();
     }
-
     // 모든 phase 숨기고 타겟만 보이기
-    document.querySelectorAll('.phase').forEach(el => {
-        el.style.display = 'none'; // 혹은 el.classList.remove('active');
-        if(el.classList.contains('active')) el.classList.remove('active');
+    document.querySelectorAll('.phase').forEach((el) => {
+        el.classList.remove('active');
+        el.style.display = 'none';
     });
 
     const areaOverlay = document.getElementById('areaConfirmOverlay');
     if(areaOverlay) areaOverlay.style.display = 'none';
 
     const target = document.getElementById(phaseId);
-    if(target) {
-        target.style.display = 'block'; // 혹은 target.classList.add('active');
-        target.classList.add('active');
+    if (!target) {
+        console.error(`[goToPhase] target phase not found: ${phaseId}`);
+        alert(`화면 전환 실패: ${phaseId}`);
+        return;
     }
+    target.classList.add('active');
+    target.style.display = 'flex';
 
     // 단계별 추가 로직 실행
+    if (phaseId === 'op_scan_order') {
+        const cameraOverlay = document.getElementById('cameraOverlay');
+        const showOverlayBtn = document.getElementById('btnShowOverlay');
+        if (cameraOverlay) cameraOverlay.style.display = 'none';
+        if (showOverlayBtn) showOverlayBtn.style.display = 'none';
+        if (typeof window.renderScanOrderEditor === 'function') {
+            window.renderScanOrderEditor();
+        }
+    }
     if (phaseId === 'op_load') loadRouteOrder(true);
     if (phaseId === 'op_deliver') loadRouteOrder(false);
     if (phaseId === 'op_scan' && typeof window.startScanCamera === 'function') {
         window.startScanCamera();
+        if (typeof window.loadSavedItemsForScan === 'function') {
+            window.loadSavedItemsForScan();
+        }
     }
     if (phaseId === 'phase_sector' && typeof enableSectorPlacement === 'function') {
         enableSectorPlacement();
@@ -324,6 +336,17 @@ async function simulateScanAction() {
 }
 
 async function loadRouteOrder(isLIFO) {
+    if (Array.isArray(window.scanDeliveryOrder) && window.scanDeliveryOrder.length > 0) {
+        const ordered = window.scanDeliveryOrder.map(item => ({
+            sectorId: item.sectorId ?? null,
+            sectorName: item.sectorName ?? '미지정',
+            count: item.count ?? 0
+        }));
+        if (isLIFO) renderLoadingList([...ordered].reverse());
+        else renderDeliveryList(ordered);
+        return;
+    }
+
     try {
         const response = await fetch(`${API_BASE}/routes/order`, { method: 'GET', headers: getHeaders() });
         if (response.ok) {
@@ -345,6 +368,7 @@ function renderLoadingList(list) {
         <div class="card" style="border-left: 4px solid var(--danger-color);">
             <h3>${sec.sectorName}</h3>
             <p>적재순서 ${idx + 1} (안쪽 배치)</p>
+            <p style="margin:4px 0 0; color:var(--text-sub); font-size:0.85rem;">스캔 건수: ${sec.count ?? 0}</p>
         </div>`).join('');
     }
 }
@@ -356,6 +380,7 @@ function renderDeliveryList(list) {
         <div class="card" style="border-left: 4px solid var(--success-color);">
             <h3>${sec.sectorName}</h3>
             <p>STOP ${idx + 1} (배송 예정)</p>
+            <p style="margin:4px 0 0; color:var(--text-sub); font-size:0.85rem;">스캔 건수: ${sec.count ?? 0}</p>
         </div>`).join('');
     }
 }

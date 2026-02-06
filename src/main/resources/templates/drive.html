@@ -11,12 +11,12 @@
 <div th:replace="~{fragments/work-scan :: workScanFragment}"></div>
 <div th:replace="~{fragments/navigation :: navigationFragment}"></div>
 
-<script th:src="@{/js/api.js}"></script>
-<script th:src="@{/js/map.js}"></script>
+<script th:src="@{/js/api.js(v=${appVersion})}"></script>
+<script th:src="@{/js/map.js(v=${appVersion})}"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 <script src="https://unpkg.com/@zxing/browser@latest"></script>
-<script th:src="@{/js/work-scan.js}"></script>
-<script th:src="@{/js/app.js}"></script>
+<script th:src="@{/js/work-scan.js(v=${appVersion})}"></script>
+<script th:src="@{/js/app.js(v=${appVersion})}"></script>
 
 
 </body>

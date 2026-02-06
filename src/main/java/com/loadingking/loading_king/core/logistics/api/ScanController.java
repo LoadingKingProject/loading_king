@@ -1,15 +1,18 @@
 package com.loadingking.loading_king.core.logistics.api;
 
 import com.loadingking.loading_king.core.logistics.application.LogisticsService;
+import com.loadingking.loading_king.core.logistics.dto.ScanItemViewDto;
 import com.loadingking.loading_king.core.logistics.dto.ScanRequestDto;
 import com.loadingking.loading_king.core.logistics.dto.ScanResponseDto;
 import com.loadingking.loading_king.infra.security.CustomUserDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/logistics")
@@ -33,6 +36,14 @@ public class ScanController {
                 userDetail.getUser()
         );
 
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/items/active")
+    public ResponseEntity<List<ScanItemViewDto>> getActiveJobItems(
+            @AuthenticationPrincipal CustomUserDetail userDetail
+    ) {
+        List<ScanItemViewDto> response = logisticsService.getActiveJobItems(userDetail.getUser());
         return ResponseEntity.ok(response);
     }
 }
