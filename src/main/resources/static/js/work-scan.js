@@ -667,6 +667,18 @@
         renderUnassignedList();
     };
     window.renderSectorDashboard = renderSectorDashboard;
+    window.initSectorDashboard = async () => {
+        if (assignedSectors.length > 0) {
+            renderSectorDashboard();
+            return;
+        }
+        try {
+            await fillAssignedSectorsFromSavedItems();
+        } catch (e) {
+            console.error("initSectorDashboard error:", e);
+        }
+        renderSectorDashboard();
+    };
 
     refreshSavedItems();
 })();

@@ -61,8 +61,8 @@ function goToPhase(phaseId) {
         if (typeof window.loadSavedItemsForScan === 'function') {
             window.loadSavedItemsForScan();
         }
-        if (typeof window.renderSectorDashboard === 'function') {
-            window.renderSectorDashboard();
+        if (typeof window.initSectorDashboard === 'function') {
+            window.initSectorDashboard();
         }
     }
     if (phaseId === 'phase_sector' && typeof enableSectorPlacement === 'function') {
