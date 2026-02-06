@@ -32,6 +32,13 @@ function goToPhase(phaseId) {
     const areaOverlay = document.getElementById('areaConfirmOverlay');
     if(areaOverlay) areaOverlay.style.display = 'none';
 
+    // 지도가 필요한 phase에서만 보이게, 나머지에서는 숨기기
+    const mapEl = document.getElementById('map');
+    const mapPhases = ['phase_area', 'phase_sector', 'setup4'];
+    if (mapEl) {
+        mapEl.style.display = mapPhases.includes(phaseId) ? 'block' : 'none';
+    }
+
     const target = document.getElementById(phaseId);
     if (!target) {
         console.error(`[goToPhase] target phase not found: ${phaseId}`);
