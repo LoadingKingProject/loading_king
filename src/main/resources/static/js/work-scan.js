@@ -522,7 +522,11 @@
 
     function completeAssign() {
         (async () => {
-            await fillAssignedSectorsFromSavedItems();
+            try {
+                await fillAssignedSectorsFromSavedItems();
+            } catch (e) {
+                console.error("fillAssignedSectors error:", e);
+            }
             if (assignedSectors.length === 0) {
                 setHint("배정된 섹터가 없어 순서 지정 목록이 비어 있습니다.", true);
             }
