@@ -175,6 +175,30 @@ public class SectorService {
                 .findFirst();
     }
     /**
+     * 주어진 섹터 ID 목록에서 위치에 가장 가까운 섹터 찾기
+     * @param sectorIds 섹터 ID 목록
+     * @param location 확인 할 위치
+     * @return 가장 가까운 섹터가 있으면 Optional에 담아 반환, 없으면 빈 Optional 반환
+     */
+    @Transactional(readOnly = true)
+    public Optional<Sector> findNearestSector(List<Long> sectorIds, Point location) {
+        if (location == null) {
+            throw new IllegalArgumentException("location cannot be null");
+        }
+        if (sectorIds == null || sectorIds.isEmpty()) {
+            return Optional.empty();
+        }
+
+        List<Sector> sectors = sectorRepository.findAllById(sectorIds);
+
+        return sectors.stream()
+                .min((s1, s2) -> Double.compare(
+                    location.distance(s1.getBoundary()),
+                    location.distance(s2.getBoundary())
+                ));
+    }
+
+    /**
      * 주어진 섹터 ID 목록에 해당하는 모든 섹터를 조회
      * @param sectorIds 섹터 ID 목록
      * @return 해당하는 섹터들의 리스트

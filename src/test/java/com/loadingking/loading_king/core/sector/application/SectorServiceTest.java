@@ -67,6 +67,56 @@ class SectorServiceTest {
         verify(sectorRepository, times(1)).findAllById(anyList()); // 리포지토리가 1번 호출되었나 확인
     }
 
+    @Test
+    @DisplayName("포함되지 않는 좌표는 가장 가까운 섹터를 반환한다")
+    void findNearestSector_포함되지_않는_좌표_가장_가까운_섹터_반환() {
+        // Given
+        Long id1 = 1L;
+        Long id2 = 2L;
+        Long id3 = 3L;
+        Point targetLocation = factory.createPoint(new Coordinate(5, 5)); // 모든 섹터 밖의 좌표
+
+        // 섹터 생성: (0,0)-(1,1), (10,10)-(11,11), (3,3)-(4,4)
+        Sector s1 = createSectorWithId(id1, 0, 0, 1, 1);     // 거리: ~5.66
+        Sector s2 = createSectorWithId(id2, 10, 10, 11, 11); // 거리: ~7.07
+        Sector s3 = createSectorWithId(id3, 3, 3, 4, 4);     // 거리: ~1.41 (가장 가까움)
+
+        given(sectorRepository.findAllById(anyList())).willReturn(List.of(s1, s2, s3));
+
+        // When
+        Optional<Sector> result = sectorService.findNearestSector(List.of(id1, id2, id3), targetLocation);
+
+        // Then
+        assertTrue(result.isPresent());
+        assertEquals(id3, result.get().getId()); // s3가 가장 가까우므로 반환되어야 함
+        verify(sectorRepository, times(1)).findAllById(anyList());
+    }
+
+    @Test
+    @DisplayName("빈 목록이면 Optional.empty()를 반환한다")
+    void findNearestSector_빈_목록_Optional_empty_반환() {
+        // Given
+        Point targetLocation = factory.createPoint(new Coordinate(5, 5));
+
+        // When
+        Optional<Sector> result = sectorService.findNearestSector(List.of(), targetLocation);
+
+        // Then
+        assertFalse(result.isPresent());
+    }
+
+    @Test
+    @DisplayName("null location이면 예외가 발생한다")
+    void findNearestSector_null_location_예외_발생() {
+        // Given
+        Long id1 = 1L;
+
+        // When & Then
+        assertThrows(IllegalArgumentException.class, () -> {
+            sectorService.findNearestSector(List.of(id1), null);
+        });
+    }
+
     // ID 주입이 포함된 헬퍼 메서드
     private Sector createSectorWithId(Long id, double x1, double y1, double x2, double y2) {
         Polygon p = factory.createPolygon(new Coordinate[]{
