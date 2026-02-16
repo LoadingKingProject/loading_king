@@ -1,10 +1,6 @@
 (() => {
     const video = document.getElementById("cameraPreview");
-    const overlay = document.getElementById("cameraOverlay");
-    const overlayVideo = document.getElementById("cameraOverlayPreview");
-    const overlayResult = document.getElementById("cameraOverlayResult");
-    const toggleOverlayBtn = document.getElementById("btnToggleOverlay");
-    const showOverlayBtn = document.getElementById("btnShowOverlay");
+    const toastEl = document.getElementById("scanToast");
     const lastAssigned = document.getElementById("scanLastAssigned");
     const lastAssignedValue = document.getElementById("scanLastAssignedValue");
     const qrCanvas = document.getElementById("qrCanvas");
@@ -44,8 +40,8 @@
     let detector = null;
     let zxingReader = null;
     let zxingControls = null;
-    let overlayHidden = false;
     let popupTimer = null;
+    let toastTimer = null;
 
     let totalCount = 0;
     let lastRaw = null;
@@ -87,14 +83,16 @@
         resultRaw.textContent = raw ? `RAW: ${raw}` : "";
     }
 
-    function showOverlayResult(raw, format) {
-        if (!overlayResult) return;
-        if (!raw) {
-            overlayResult.textContent = "";
-            return;
-        }
-        const label = format ? `[${format}]` : "[scan]";
-        overlayResult.textContent = `${label} ${raw}`;
+    function showScanToast(message, type) {
+        if (!toastEl) return;
+        if (toastTimer) clearTimeout(toastTimer);
+        const color = type === "success" ? "rgba(34,197,94,0.9)"
+                    : type === "error"   ? "rgba(239,68,68,0.9)"
+                    :                      "rgba(0,0,0,0.75)";
+        toastEl.style.background = color;
+        toastEl.textContent = message;
+        toastEl.style.display = "block";
+        toastTimer = setTimeout(() => { toastEl.style.display = "none"; }, 2000);
     }
 
     function showAssignedPopup(sectorName) {
@@ -105,13 +103,6 @@
         popupTimer = setTimeout(() => {
             popup.style.display = "none";
         }, 500);
-    }
-
-    function updateOverlayVisibility() {
-        if (!overlay) return;
-        overlay.style.display = overlayHidden ? "none" : "flex";
-        if (toggleOverlayBtn) toggleOverlayBtn.textContent = overlayHidden ? "카메라 보기" : "지도 보기";
-        if (showOverlayBtn) showOverlayBtn.style.display = overlayHidden ? "inline-flex" : "none";
     }
 
     function incrementCount() {
@@ -369,7 +360,6 @@
 
         try {
             setBadge("처리중...");
-            showOverlayResult(raw, format);
             const result = await postScanItem(raw);
             incrementCount();
 
@@ -379,6 +369,7 @@
                 addAssignedSector(result);
                 updateFinishAssignButton();
                 showAssignedPopup(sectorLabel);
+                showScanToast(`✅ ${sectorLabel}`, "success");
                 showResult("배정 완료", sectorLabel, raw, "var(--success-color)");
                 setBadge("배정 완료");
                 setHint("배정이 완료되었습니다.");
@@ -388,6 +379,7 @@
                 }
             } else {
                 addUnassigned(raw);
+                showScanToast("⚠️ 미배정", "error");
                 showResult("미배정", "구역 매핑 없음", raw, "var(--accent-color)");
                 setBadge("미배정");
                 setHint("해당 배송지역(Village) 내 매핑 가능한 Sector가 없습니다.");
@@ -434,27 +426,23 @@
 
             stream = await navigator.mediaDevices.getUserMedia(getVideoConstraints());
             video.srcObject = stream;
-            if (overlayVideo) overlayVideo.srcObject = stream;
             await video.play();
 
             video.style.display = "block";
             if (placeholder) placeholder.style.display = "none";
             if (btnStart) btnStart.disabled = true;
             if (btnStop) btnStop.disabled = false;
-            if (overlay) {
-                overlayHidden = false;
-                updateOverlayVisibility();
-            }
-            if (overlayVideo) {
-                try { await overlayVideo.play(); } catch (e) {}
-            }
 
             setHint("카메라 시작됨. 바코드를 비추세요.");
             setBadge("스캔 대기");
 
             if ("BarcodeDetector" in window) {
                 detector = new BarcodeDetector({
-                    formats: ["qr_code", "code_128", "ean_13", "ean_8", "code_39", "upc_a", "upc_e"]
+                    formats: [
+                        "qr_code", "code_128", "ean_13", "ean_8",
+                        "code_39", "upc_a", "upc_e",
+                        "data_matrix", "pdf417"
+                    ]
                 });
             }
             scanning = true;
@@ -480,9 +468,8 @@
         }
 
         zxingReader = new window.ZXingBrowser.BrowserMultiFormatReader(hints);
-        const targetVideo = overlayVideo || video;
+        const targetVideo = video;
 
-        if (overlay) overlay.style.display = "flex";
         targetVideo.style.display = "block";
         if (placeholder) placeholder.style.display = "none";
         if (btnStart) btnStart.disabled = true;
@@ -515,11 +502,9 @@
             zxingControls = null;
             stream = await navigator.mediaDevices.getUserMedia(getVideoConstraints());
             video.srcObject = stream;
-            if (overlayVideo) overlayVideo.srcObject = stream;
             await video.play();
             video.style.display = "block";
             if (placeholder) placeholder.style.display = "none";
-            if (overlay) overlay.style.display = "flex";
             scanning = true;
             scanLoop();
         }
@@ -542,15 +527,9 @@
         }
 
         video.srcObject = null;
-        if (overlayVideo) overlayVideo.srcObject = null;
         video.style.display = "none";
         if (placeholder) placeholder.style.display = "block";
-        if (overlay) {
-            // 스캔 phase를 벗어날 때는 오버레이를 강제로 닫아 다음 phase가 가려지지 않게 한다.
-            overlayHidden = true;
-            overlay.style.display = "none";
-        }
-        if (showOverlayBtn) showOverlayBtn.style.display = "none";
+        if (toastEl) toastEl.style.display = "none";
         if (btnStart) btnStart.disabled = false;
         if (btnStop) btnStop.disabled = true;
 
@@ -560,10 +539,16 @@
 
     function tryDecodeQrWithJsQr() {
         if (!qrCanvas || !qrCtx || !video.videoWidth || !video.videoHeight) return null;
-        qrCanvas.width = video.videoWidth;
-        qrCanvas.height = video.videoHeight;
-        qrCtx.drawImage(video, 0, 0, qrCanvas.width, qrCanvas.height);
-        const imageData = qrCtx.getImageData(0, 0, qrCanvas.width, qrCanvas.height);
+        // 성능 최적화: 전체 프레임 대신 중앙 300x300px 영역만 분석 (ROI)
+        const ROI_SIZE = 300;
+        const sx = Math.max(0, (video.videoWidth  - ROI_SIZE) / 2);
+        const sy = Math.max(0, (video.videoHeight - ROI_SIZE) / 2);
+        const sw = Math.min(ROI_SIZE, video.videoWidth);
+        const sh = Math.min(ROI_SIZE, video.videoHeight);
+        qrCanvas.width  = sw;
+        qrCanvas.height = sh;
+        qrCtx.drawImage(video, sx, sy, sw, sh, 0, 0, sw, sh);
+        const imageData = qrCtx.getImageData(0, 0, sw, sh);
         if (typeof jsQR !== "function") return null;
         const code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts: "attemptBoth" });
         return code ? code.data : null;
@@ -636,14 +621,6 @@
     btnCompleteOrder?.addEventListener("click", completeOrder);
     btnGoOrderPhase?.addEventListener("click", goOrderPhase);
     btnRefreshSavedItems?.addEventListener("click", refreshSavedItems);
-    toggleOverlayBtn?.addEventListener("click", () => {
-        overlayHidden = !overlayHidden;
-        updateOverlayVisibility();
-    });
-    showOverlayBtn?.addEventListener("click", () => {
-        overlayHidden = false;
-        updateOverlayVisibility();
-    });
 
     window.startScanCamera = startCamera;
     window.stopScanCamera = stopCamera;
