@@ -63,7 +63,7 @@
                 최근 스캔 배정: <b id="assignedPopupSector">-</b>
             </div>
 
-            <div class="scan-box" id="scanView" style="position:relative; overflow:hidden;">
+            <div class="scan-box" id="scanView" style="position:relative; overflow:hidden; min-height:220px;">
                 <video id="cameraPreview"
                        playsinline muted autoplay
                        style="width:100%; height:260px; object-fit:cover; border-radius:14px; background:#111; display:none;">
@@ -84,25 +84,18 @@
                      style="position:absolute; top:12px; left:12px; background:rgba(0,0,0,0.55); color:#fff; padding:6px 10px; border-radius:999px; font-size:0.85rem; display:none;">
                     준비됨
                 </div>
-            </div>
 
-            <div id="cameraOverlay" class="camera-overlay" style="display:none;">
-                <video id="cameraOverlayPreview" playsinline muted autoplay></video>
-                <button class="btn btn-primary camera-overlay-exit" type="button" onclick="goToPhase('op_scan_order')">스캔 종료</button>
-                <div class="camera-overlay-panel">
-                    <span>카메라 스캔 중</span>
-                    <span id="cameraOverlayResult" style="color:var(--accent-color); font-weight:700;"></span>
-                    <button class="btn btn-primary" type="button" id="btnToggleOverlay">지도 보기</button>
+                <!-- 스캔 결과 토스트 (카메라 하단, 인라인 표시) -->
+                <div id="scanToast"
+                     style="display:none; position:absolute; bottom:12px; left:50%; transform:translateX(-50%);
+                            background:rgba(0,0,0,0.75); color:#fff; padding:8px 18px; border-radius:999px;
+                            font-size:0.9rem; font-weight:600; white-space:nowrap; pointer-events:none; z-index:10;">
                 </div>
             </div>
 
             <div id="scanLastAssigned" class="scan-last-assigned" style="display:none;">
                 최근 배정 섹터: <span id="scanLastAssignedValue">-</span>
             </div>
-
-            <button id="btnShowOverlay" class="btn btn-primary camera-show-overlay" type="button" style="display:none;">
-                카메라 보기
-            </button>
 
             <div id="scanResultCard" class="card"
                  style="display:none; text-align:center; border:2px solid var(--accent-color); margin-top:12px;">
