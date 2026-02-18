@@ -548,11 +548,11 @@ select:focus { border-color: var(--primary-color); }
     margin-bottom: 20px; background: rgba(0,0,0,0.3); position: relative;
 }
 .scan-line {
-    width: 80%; height: 2px; background: var(--danger-color);
+    width: 100%; height: 2px; background: var(--danger-color);
     box-shadow: 0 0 10px var(--danger-color);
-    position: absolute; animation: scanAnim 2s infinite linear;
+    position: absolute; left: 0; animation: scanAnim 2s infinite linear;
 }
-@keyframes scanAnim { 0% { top: 20%; } 50% { top: 80%; } 100% { top: 20%; } }
+@keyframes scanAnim { 0% { top: 5%; } 50% { top: 95%; } 100% { top: 5%; } }
 
 /* 스캔 배정 팝업 */
 .scan-assigned-popup {
