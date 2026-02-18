@@ -54,6 +54,7 @@
 <th:block th:fragment="workScanFragment">
     <section id="op_scan" class="phase solid-bg" style="display:none;">
         <header class="header">
+            <button class="btn btn-dark" onclick="goToPhase('phase_sector')" style="width:auto; padding:8px 12px; font-size:0.85rem;">←</button>
             <h1>물품 스캔 (Scanning)</h1>
             <span class="step-badge" style="background:var(--danger-color); color:white;">Action</span>
         </header>
@@ -131,28 +132,11 @@
                 <button class="btn btn-primary" id="btnStopCamera" type="button" disabled>
                     <i class="fa-solid fa-stop"></i> 중지
                 </button>
-
-                <button class="btn" id="btnSimulateScan" type="button">
-                    <i class="fa-solid fa-flask"></i> SCAN (Simulation)
-                </button>
             </div>
 
-            <button class="btn btn-success" style="margin-top:10px;" id="btnFinishAssign" type="button" disabled>
-                스캔 완료
-            </button>
-            <button class="btn btn-primary" style="margin-top:10px;" id="btnGoOrderPhase" type="button">
+            <button class="btn btn-accent" style="margin-top:10px;" id="btnGoOrderPhase" type="button">
                 다음: 섹터 순서 지정
             </button>
-
-            <div class="card" style="margin-top:12px;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                    <b>저장된 Item (Active Job)</b>
-                    <button class="btn btn-dark" id="btnRefreshSavedItems" type="button" style="width:auto; padding:8px 12px; margin:0;">새로고침</button>
-                </div>
-                <div id="savedItemList" style="max-height:180px; overflow:auto; color:var(--text-sub); font-size:0.9rem;">
-                    불러오는 중...
-                </div>
-            </div>
 
             <p id="scanHint" style="margin-top:10px; color:var(--text-sub); font-size:0.9rem; line-height:1.4;">
                 ※ 모바일에서는 HTTPS 환경에서 카메라가 더 안정적으로 동작합니다.
