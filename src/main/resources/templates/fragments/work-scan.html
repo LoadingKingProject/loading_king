@@ -124,17 +124,7 @@
                 </div>
             </div>
 
-            <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                <button class="btn btn-accent" id="btnStartCamera" type="button">
-                    <i class="fa-solid fa-camera"></i> 카메라 시작
-                </button>
-
-                <button class="btn btn-primary" id="btnStopCamera" type="button" disabled>
-                    <i class="fa-solid fa-stop"></i> 중지
-                </button>
-            </div>
-
-            <button class="btn btn-accent" style="margin-top:10px;" id="btnGoOrderPhase" type="button">
+            <button class="btn btn-accent" id="btnGoOrderPhase" type="button">
                 다음: 섹터 순서 지정
             </button>
 
@@ -145,39 +135,39 @@
         </div>
     </section>
 
-    <section id="op_scan_order" class="phase solid-bg" style="display:none;">
-        <header class="header">
-            <h1>배송 순서 지정</h1>
-            <span class="step-badge">Order</span>
-        </header>
-        <div class="container">
-            <p style="color:var(--text-sub); margin-bottom:14px; font-size:0.9rem;">
-                꾹 눌러서 드래그하여 배송 순서를 변경하세요.<br>
-                위에 있을수록 먼저 배송합니다.
+    <section id="op_scan_order" class="phase transparent-bg" style="display:none;">
+        <!-- 지도가 배경으로 표시됨 -->
+        
+        <div class="container" style="position:absolute; bottom:0; left:0; right:0; height:45%; background:rgba(30, 30, 30, 0.95); border-radius:20px 20px 0 0; padding:16px; overflow-y:auto; color:white; z-index:150;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <span style="font-weight:bold;">배송 순서 지정</span>
+                <span class="step-badge">Order</span>
+            </div>
+            <p style="color:var(--text-sub); margin-bottom:10px; font-size:0.85rem;">
+                드래그하여 순서 변경 | 위 = 먼저 배송
             </p>
 
-            <div id="scanOrderLoading" style="text-align:center; padding:40px 0; color:var(--text-sub); display:none;">
+            <div id="scanOrderLoading" style="text-align:center; padding:20px 0; color:var(--text-sub); display:none;">
                 섹터 목록을 불러오는 중...
             </div>
-            <div id="scanOrderEmpty" style="text-align:center; padding:40px 0; color:var(--text-sub); display:none;">
-                생성된 섹터가 없습니다.<br>먼저 섹터를 설정해주세요.
+            <div id="scanOrderEmpty" style="text-align:center; padding:20px 0; color:var(--text-sub); display:none;">
+                생성된 섹터가 없습니다.
             </div>
 
-            <div id="scanOrderList" style="margin-bottom:12px;"></div>
+            <div id="scanOrderList" style="margin-bottom:12px; max-height:150px; overflow-y:auto;"></div>
 
             <div id="scanUnassignedCard" class="card" style="margin-bottom:12px; display:none;">
                 <div style="font-weight:700; margin-bottom:8px; color:var(--danger-color);">미배정 목록</div>
                 <div id="scanUnassignedList" style="color:var(--text-sub); font-size:0.9rem;">
                     미배정 항목 없음
                 </div>
-                <p id="scanUnassignedHint" style="margin:8px 0 0; color:var(--text-sub); font-size:0.85rem;"></p>
             </div>
 
             <button class="btn btn-success" id="btnCompleteOrder" type="button">
                 순서 확정 → 적재 가이드
             </button>
             <button class="btn btn-dark" style="margin-top:10px;" type="button" onclick="goToPhase('op_scan')">
-                스캔 화면으로 돌아가기
+                ← 스캔 화면으로
             </button>
         </div>
     </section>
