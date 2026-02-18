@@ -3,7 +3,7 @@
    ========================================= */
 :root {
     --bg-color: #121212;
-    --surface-color: rgba(255, 255, 255, 0.05); /* 카드/박스 배경 (투명도 적용) */
+    --surface-color: rgba(255, 255, 255, 0.05); /* 카드/박스 배경 */
     --primary-color: #3B82F6; /* Blue */
     --accent-color: #F97316;  /* Orange */
     --success-color: #10B981; /* Green */
@@ -27,80 +27,37 @@ body, html {
 }
 
 /* =========================================
-   2. 배경 스타일링 (요청하신 디자인 적용)
+   2. 배경 스타일링
    ========================================= */
 body {
     display: flex;
-    flex-direction: column; /* 중요: 앱의 세로 구조 유지를 위해 column 설정 */
+    flex-direction: column;
     background-color: var(--bg-color);
     color: var(--text-main);
     overflow: hidden;
     position: relative;
 }
 
-/* 배경 이미지 + 그라데이션 + 블러 효과 레이어 */
+/* 배경 이미지 + 그라데이션 + 블러 효과 */
 body::before {
     content: '';
     position: absolute;
-    top: -10px; left: -10px; right: -10px; bottom: -10px; /* 블러 여백 보정 */
+    top: -10px; left: -10px; right: -10px; bottom: -10px;
     z-index: -1;
-
-    /* ★ 이미지 경로: css 폴더 밖의 images 폴더를 참조하도록 설정 ★ */
     background-image: url('../images/background.png');
     background-size: cover;
     background-position: center center;
     background-repeat: no-repeat;
-
-    /*
-    !* 어둡고 푸른 계열의 그라데이션 오버레이 *!
-    background: linear-gradient(
-            to bottom,
-            rgba(20, 40, 80, 0.7),
-            rgba(5, 10, 30, 0.9)
-    ), url('../images/background.png');
-    */
-
-    background-blend-mode: multiply; /* 색상 혼합 */
-    filter: blur(5px); /* 흐림 효과 */
+    background-blend-mode: multiply;
+    filter: blur(5px);
 }
 
 /* =========================================
-   3. 로그인 화면 스타일 (New Design)
+   3. 공통 UI 컴포넌트
    ========================================= */
-/* 로그인 박스 스타일 */
-.login-box {
-    background-color: var(--surface-color); /* 투명한 배경 */
-    padding: 40px;
-    border-radius: 16px;
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5); /* 깊은 그림자 */
-    text-align: center;
-    color: #ffffff;
-    width: 100%;
-    max-width: 400px;
-    border: 1px solid var(--border-color);
-
-    /* 화면 중앙 배치를 위해 마진 자동 설정 (flex container 안에서) */
-    margin: auto;
-}
-
-.logo-symbol { width: 80px; height: auto; margin-bottom: 20px; }
-
-h1.app-title {
-    margin: 10px 0 5px;
-    font-size: 28px;
-    font-weight: 700;
-    letter-spacing: 1px;
-}
-
-p.sub-title {
-    margin-bottom: 30px;
-    color: var(--text-sub);
-    font-size: 14px;
-}
-
 .input-group { margin-bottom: 15px; }
 
-/* 입력 필드 디자인 */
+/* 공통 입력 필드 */
 .input-field {
     width: 100%;
     padding: 16px;
@@ -112,34 +69,47 @@ p.sub-title {
     box-sizing: border-box;
     transition: border-color 0.3s;
 }
-
 .input-field:focus {
     border-color: var(--primary-color);
     outline: none;
 }
 
-/* 로그인 버튼 디자인 */
-.login-button {
+/* 공통 버튼 */
+.btn {
     width: 100%;
     padding: 16px;
-    background-color: var(--primary-color);
+    border-radius: 12px;
     border: none;
-    border-radius: 8px;
-    color: #ffffff;
-    font-size: 16px;
-    font-weight: 600;
+    font-size: 1rem;
+    font-weight: 700;
     cursor: pointer;
-    transition: background-color 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: 0.2s;
+    color: white;
 }
+.btn:active { transform: scale(0.98); opacity: 0.9; }
 
-.login-button:hover {
-    background-color: #2563eb;
+.btn-primary { background-color: var(--primary-color); }
+.btn-accent { background-color: var(--accent-color); }
+.btn-success { background-color: var(--success-color); }
+.btn-dark { background-color: #333; }
+
+/* 카드 스타일 */
+.card {
+    background: var(--surface-color);
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    border: 1px solid var(--border-color);
 }
 
 /* =========================================
-   4. 앱 내부 레이아웃 (헤더, 컨테이너 등)
+   ★ 누락되었던 핵심 레이아웃 코드 (복구됨) ★
    ========================================= */
-/* 화면 전환용 클래스 */
+/* 화면 전환용 클래스 (SPA 동작 필수) */
 .phase {
     display: none;
     height: 100%;
@@ -152,8 +122,8 @@ p.sub-title {
 /* 상단 헤더 */
 .header {
     padding: 16px 20px;
-    background-color: rgba(30, 30, 30, 0.8); /* 약간 투명하게 */
-    backdrop-filter: blur(10px); /* 헤더 뒤쪽 블러 처리 */
+    background-color: rgba(30, 30, 30, 0.8);
+    backdrop-filter: blur(10px);
     border-bottom: 1px solid var(--border-color);
     display: flex;
     justify-content: space-between;
@@ -181,112 +151,331 @@ p.sub-title {
 }
 
 /* =========================================
-   5. 공통 UI 컴포넌트 (카드, 버튼, 지도 등)
+   4. [New] 로그인 페이지 전용 테마 (Isometric)
    ========================================= */
-/* 공통 버튼 스타일 */
-.btn {
+.loading-theme-body {
+    --theme-bg: #1a1a1a;
+    --theme-surface: #2d2d2d;
+    --theme-orange: #FF6B00;
+    --theme-text: #ffffff;
+    --theme-gray: #888888;
+
+    margin: 0; padding: 0;
+    background-color: var(--theme-bg);
+    color: var(--theme-text);
+    height: 100vh;
+    overflow: hidden;
     width: 100%;
-    padding: 16px;
-    border-radius: 12px;
-    border: none;
-    font-size: 1rem;
-    font-weight: 700;
-    cursor: pointer;
+    display: block;
+}
+
+.split-container {
     display: flex;
-    align-items: center;
+    width: 100%;
+    height: 100%;
+}
+
+/* --- 좌측: 비주얼 영역 --- */
+.visual-section {
+    flex: 1.2;
+    background: radial-gradient(circle at center, #2a2a2a 0%, #111 100%);
+    display: flex;
+    flex-direction: column;
     justify-content: center;
-    gap: 8px;
-    transition: 0.2s;
-    margin-top: auto; /* 하단 고정 */
-    color: white;
-}
-.btn:active { transform: scale(0.98); opacity: 0.9; }
-
-.btn-primary { background-color: var(--primary-color); }
-.btn-accent { background-color: var(--accent-color); }
-.btn-success { background-color: var(--success-color); }
-.btn-dark { background-color: #333; }
-
-/* 카드 스타일 */
-.card {
-    background: var(--surface-color);
-    padding: 20px;
-    border-radius: 12px;
-    margin-bottom: 12px;
-    border: 1px solid var(--border-color);
-}
-
-/* 지도 시뮬레이션 프레임 */
-.map-frame {
-    flex: 1;
-    background: rgba(36, 47, 62, 0.6);
-    border-radius: 16px;
-    margin-bottom: 20px;
+    align-items: center;
     position: relative;
     overflow: hidden;
-    border: 1px solid var(--border-color);
-    /* 격자 패턴 */
+}
+
+/* 격자 배경 애니메이션 */
+.visual-section::before {
+    content: '';
+    position: absolute;
+    width: 200%; height: 200%;
     background-image:
             linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
             linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
     background-size: 40px 40px;
+    transform: perspective(500px) rotateX(60deg) translateY(-100px) translateZ(-200px);
+    animation: gridMove 20s linear infinite;
+}
+@keyframes gridMove {
+    0% { transform: perspective(500px) rotateX(60deg) translateY(0) translateZ(-200px); }
+    100% { transform: perspective(500px) rotateX(60deg) translateY(40px) translateZ(-200px); }
 }
 
-/* 지도 요소들 */
-.zone-polygon {
-    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-    width: 200px; height: 180px;
-    background: rgba(59, 130, 246, 0.2);
-    border: 2px solid var(--primary-color);
-    clip-path: polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%);
-    display: flex; align-items: center; justify-content: center;
-    color: var(--primary-color); font-weight: bold;
-    animation: pulseZone 2s infinite;
-}
-@keyframes pulseZone { 0% { opacity: 0.7; } 50% { opacity: 1; } 100% { opacity: 0.7; } }
+.content-wrapper { z-index: 10; text-align: center; }
 
-.center-pin {
-    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-    color: var(--accent-color); font-size: 2rem; z-index: 10;
-    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));
+.logo-text {
+    font-size: 1rem; font-weight: 900; letter-spacing: 4px;
+    color: var(--theme-orange); margin-bottom: 20px; opacity: 0.8;
 }
 
-.radius-circle {
-    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-    border: 2px dashed var(--accent-color);
-    background: rgba(249, 115, 22, 0.1);
-    border-radius: 50%;
-    width: 100px; height: 100px;
-    transition: width 0.3s, height 0.3s;
+.slogan {
+    font-size: 3.5rem; font-weight: 800; line-height: 1.1; margin-bottom: 60px;
+    text-shadow: 0 4px 20px rgba(0,0,0,0.5);
+}
+.slogan .highlight { color: var(--theme-orange); }
+
+/* 3D 큐브 애니메이션 */
+.loader-container {
+    position: relative; width: 100px; height: 100px; margin: 0 auto; perspective: 800px;
+}
+.cube-wrapper {
+    width: 100%; height: 100%; transform-style: preserve-3d; transform: rotateX(60deg) rotateZ(45deg);
+}
+.cube {
+    width: 40px; height: 40px; background-color: var(--theme-orange);
+    position: absolute; top: 0; left: 0;
+    box-shadow: 40px 40px 10px rgba(0,0,0,0.4);
+    animation: stackAnim 2s infinite ease-in-out;
+}
+.cube::before, .cube::after {
+    content: ''; position: absolute; width: 100%; height: 100%; background-color: inherit;
+}
+.cube::before { transform: rotateY(90deg); transform-origin: left; filter: brightness(0.8); }
+.cube::after { transform: rotateX(-90deg); transform-origin: top; filter: brightness(1.2); }
+
+.cube1 { transform: translate(0, 0); animation-delay: 0s; --tx: 0px; --ty: 0px; }
+.cube2 { transform: translate(45px, 0); animation-delay: 0.1s; --tx: 45px; --ty: 0px; }
+.cube3 { transform: translate(0, 45px); animation-delay: 0.2s; --tx: 0px; --ty: 45px; }
+.cube4 { transform: translate(45px, 45px); animation-delay: 0.3s; --tx: 45px; --ty: 45px; }
+
+@keyframes stackAnim {
+    0%, 100% { transform: translate(var(--tx), var(--ty)) translateZ(0); opacity: 1; }
+    50% { transform: translate(var(--tx), var(--ty)) translateZ(40px); opacity: 0.5; }
 }
 
-/* 리스트 아이템 */
-.list-item {
-    display: flex; align-items: center; justify-content: space-between;
-    background: var(--surface-color); padding: 16px; border-radius: 12px;
-    margin-bottom: 10px; border: 1px solid var(--border-color);
+.loading-text {
+    margin-top: 50px; font-size: 0.9rem; color: var(--theme-gray);
+    letter-spacing: 1px; text-transform: uppercase; animation: blink 2s infinite;
 }
+@keyframes blink { 50% { opacity: 0.5; } }
 
-.sector-list-horizontal {
+/* --- 우측: 로그인 폼 영역 --- */
+.form-section {
+    flex: 0.8;
+    background-color: var(--theme-bg);
     display: flex;
-    gap: 12px;
-    overflow-x: auto;
-    padding-bottom: 6px;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+    border-left: 1px solid #333;
 }
 
-.sector-list-horizontal .list-item {
-    min-width: 220px;
-    margin-bottom: 0;
+.login-card { width: 100%; max-width: 400px; }
+.form-section .header h2 { font-size: 2rem; margin: 0 0 10px 0; color: white; }
+.form-section .header p { color: var(--theme-gray); margin-bottom: 40px; }
+
+/* 로그인 폼 요소 오버라이드 */
+.loading-theme-body .input-group { margin-bottom: 20px; }
+.loading-theme-body .input-group label {
+    display: block; font-size: 0.75rem; color: var(--theme-orange);
+    font-weight: bold; margin-bottom: 8px; letter-spacing: 1px;
+}
+.loading-theme-body .input-field {
+    background-color: var(--theme-surface); border: 1px solid #444;
+}
+.loading-theme-body .input-field:focus { border-color: var(--theme-orange); }
+
+.loading-theme-body .btn-primary {
+    background-color: var(--theme-orange);
+    color: white;
+    margin-top: 20px;
+    width: 100%;
+    padding: 12px 16px;
+    border-radius: 4px;
+    border: none;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
 }
 
-.sector-list-horizontal::-webkit-scrollbar {
-    height: 6px;
+.dev-pass {
+    text-align: center; margin-top: 15px; font-size: 0.8rem; color: #444; cursor: pointer;
 }
-.sector-list-horizontal::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 999px;
+.dev-pass:hover { color: #666; }
+
+.divider {
+    text-align: center; margin: 30px 0; color: #444; font-size: 0.8rem; position: relative;
+    display: block;
+}
+.divider::before, .divider::after {
+    content: ''; position: absolute; top: 50%; width: 40%; height: 1px; background: #333;
+}
+.divider::before { left: 0; } .divider::after { right: 0; }
+.divider span { display: none; }
+
+.copyright {
+    text-align: center; margin-top: 40px; font-size: 0.75rem; color: #444; position: static;
 }
 
+/* 구글 로그인 버튼 */
+.loading-theme-body .btn-google {
+    background-color: #FFFFFF; color: #1f1f1f; border: 1px solid #dadce0;
+    font-weight: 500; display: flex; align-items: center; justify-content: center;
+    gap: 10px; font-family: 'Roboto', 'Noto Sans KR', sans-serif;
+    width: 100%; padding: 12px 16px; border-radius: 4px; text-decoration: none;
+    transition: background-color 0.2s; font-size: 1rem; box-sizing: border-box; height: auto;
+}
+.loading-theme-body .btn-google:hover {
+    background-color: #f8f9fa; border-color: #d2e3fc;
+}
+.google-icon { width: 18px; height: 18px; }
+
+/* 모바일 반응형 */
+@media (max-width: 900px) {
+    .loading-theme-body {
+        overflow-y: auto !important; height: auto !important; min-height: 100vh;
+    }
+    .split-container { flex-direction: column; }
+
+    .visual-section {
+        flex: none; min-height: 350px; height: auto; padding: 40px 20px;
+        border-bottom: 1px solid var(--theme-orange);
+    }
+    .visual-section::before { animation: none; }
+
+    .slogan { font-size: 1.8rem; margin-bottom: 20px; word-break: keep-all; }
+    .loader-container { transform: scale(0.7); margin-top: -10px; }
+
+    .form-section {
+        flex: none; padding: 40px 20px 60px; border-left: none;
+    }
+
+    .loading-theme-body .input-field { height: 50px; font-size: 16px; }
+    .loading-theme-body .btn-primary,
+    .loading-theme-body .btn-google { height: 56px; font-size: 1.1rem; }
+
+    /* 앱 내부 UI 모바일 대응 */
+    .area-selector-card {
+        position: absolute !important;
+        top: 10px !important;
+        left: 10px !important;
+        right: 10px !important;
+        padding: 10px !important;
+        max-width: none !important;
+    }
+    .area-selector-card h3 {
+        margin: 0 0 6px 0 !important;
+        font-size: 0.9rem !important;
+    }
+    .select-group {
+        margin-bottom: 6px !important;
+    }
+    .area-selector-card select {
+        padding: 8px 10px !important;
+        font-size: 0.85rem !important;
+    }
+}
+
+
+/* =========================================
+   5. 앱 내부 UI (지도, 스캔, 드라이브 등)
+   ========================================= */
+
+/* 기본 바디 설정 (로그인 외 페이지용) */
+body:not(.loading-theme-body) {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    overflow: hidden;
+    position: relative;
+}
+
+/* 배경 이미지 (로그인 외 페이지용) */
+body:not(.loading-theme-body)::before {
+    content: '';
+    position: absolute;
+    top: -10px; left: -10px; right: -10px; bottom: -10px;
+    z-index: -1;
+    background-image: url('../images/background.png');
+    background-size: cover;
+    background-position: center center;
+    background-blend-mode: multiply;
+    filter: blur(5px);
+}
+
+/* 지도 설정 */
+#map {
+    width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 1;
+}
+
+/* 둥둥 떠있는 선택 카드 */
+.area-selector-card {
+    position: absolute; top: 20px; left: 20px; right: 20px;
+    background: rgba(30, 30, 30, 0.95); backdrop-filter: blur(10px);
+    padding: 20px; border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    z-index: 100; border: 1px solid var(--border-color);
+    max-width: 400px; margin: 0 auto;
+}
+
+.area-selector-card h3 {
+    margin: 0 0 15px 0; font-size: 1.1rem; text-align: center; color: var(--text-main);
+}
+
+.select-group { margin-bottom: 12px; }
+
+select {
+    width: 100%; padding: 14px; border-radius: 8px; border: 1px solid #555;
+    background-color: #222; color: white; font-size: 1rem; appearance: none; outline: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat; background-position: right 1rem center; background-size: 1em;
+}
+select:focus { border-color: var(--primary-color); }
+
+/* 하단 오버레이 */
+.confirm-overlay {
+    position: absolute; bottom: 30px; left: 20px; right: 20px;
+    z-index: 9999 !important; animation: slideUp 0.3s ease-out; pointer-events: auto;
+}
+.overlay-content {
+    background: rgba(30, 30, 30, 0.95); backdrop-filter: blur(10px);
+    border: 2px solid var(--primary-color); border-radius: 16px;
+    padding: 25px; box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+    color: white; text-align: center;
+}
+@keyframes slideUp {
+    from { transform: translateY(100%); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* 카메라 오버레이 */
+.camera-overlay {
+    position: fixed; inset: 0; background: rgba(10, 10, 10, 0.92);
+    z-index: 10000; display: flex; align-items: center; justify-content: center;
+}
+.camera-overlay video {
+    width: min(90vw, 520px); height: min(70vh, 520px); object-fit: cover;
+    border-radius: 16px; border: 2px solid rgba(255, 255, 255, 0.15);
+}
+.camera-overlay-panel {
+    position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
+    display: flex; align-items: center; gap: 12px;
+    background: rgba(30, 30, 30, 0.85); color: #fff;
+    padding: 10px 16px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, 0.12);
+}
+.camera-overlay-exit { position: absolute; top: 16px; left: 16px; width: auto; padding: 8px 14px; }
+.camera-show-overlay {
+    position: fixed; right: 16px; bottom: 90px; width: auto; padding: 10px 14px; z-index: 5000;
+}
+
+/* 스캔 및 기타 */
+.scan-last-assigned {
+    position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%);
+    z-index: 4000; width: max-content; max-width: 90vw;
+    background: rgba(30, 30, 30, 0.9); color: #fff; border: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 10px 14px; border-radius: 999px; text-align: center; font-weight: 700;
+}
+.sector-label {
+    background: rgba(30, 30, 30, 0.85); color: #fff; padding: 6px 10px;
+    border-radius: 999px; font-size: 0.85rem; border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35); white-space: nowrap;
+}
+
+/* 마지막 배정 표시 */
 .scan-last-assigned {
     margin-top: 12px;
     background: rgba(30, 30, 30, 0.9);
@@ -296,198 +485,6 @@ p.sub-title {
     border-radius: 999px;
     text-align: center;
     font-weight: 700;
-}
-
-/* 스캔 UI */
-.scan-box {
-    flex: 1; border: 2px dashed #666; border-radius: 16px;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    margin-bottom: 20px; background: rgba(0,0,0,0.3); position: relative;
-}
-.scan-line {
-    width: 80%; height: 2px; background: var(--danger-color);
-    box-shadow: 0 0 10px var(--danger-color);
-    position: absolute; animation: scanAnim 2s infinite linear;
-}
-@keyframes scanAnim { 0% { top: 20%; } 50% { top: 80%; } 100% { top: 20%; } }
-
-.slider-container {
-    background: var(--surface-color); padding: 20px; border-radius: 12px; margin-bottom: 20px;
-}
-input[type=range] {
-    width: 100%; margin: 10px 0; accent-color: var(--accent-color);
-}
-/* 기존 CSS 맨 아래에 추가하세요 */
-
-/* 1. 지도 전체 화면 설정 */
-#map {
-    width: 100%;
-    height: 100%;
-    position: absolute; /* setup1 컨테이너 안에서 절대 위치 */
-    top: 0; left: 0;
-    z-index: 1; /* 제일 아래 */
-}
-
-/* 2. 둥둥 떠있는 선택 카드 (Floating Card) */
-.area-selector-card {
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    right: 20px;
-    background: rgba(30, 30, 30, 0.95); /* 어두운 배경 */
-    backdrop-filter: blur(10px);
-    padding: 20px;
-    border-radius: 16px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-    z-index: 100; /* 지도 위에 */
-    border: 1px solid var(--border-color);
-    max-width: 400px;
-    margin: 0 auto;
-}
-
-.area-selector-card h3 {
-    margin: 0 0 15px 0;
-    font-size: 1.1rem;
-    text-align: center;
-    color: var(--text-main);
-}
-
-/* 드롭다운 그룹 */
-.select-group {
-    margin-bottom: 12px;
-}
-
-select {
-    width: 100%;
-    padding: 14px;
-    border-radius: 8px;
-    border: 1px solid #555;
-    background-color: #222;
-    color: white;
-    font-size: 1rem;
-    appearance: none; /* 기본 화살표 제거 */
-    outline: none;
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-    background-repeat: no-repeat;
-    background-position: right 1rem center;
-    background-size: 1em;
-}
-
-select:disabled {
-    background-color: #1a1a1a;
-    color: #666;
-    border-color: #333;
-    opacity: 0.7;
-}
-
-select:focus {
-    border-color: var(--primary-color);
-}
-
-.confirm-overlay {
-    position: absolute;
-    bottom: 30px;        /* 하단에서 약간 띄움 */
-    left: 20px;
-    right: 20px;
-    z-index: 9999 !important; /* ★ 중요: 지도보다 무조건 위에 뜨도록 설정 */
-    animation: slideUp 0.3s ease-out;
-    pointer-events: auto; /* 클릭 가능하도록 설정 */
-}
-
-.overlay-content {
-    background: rgba(30, 30, 30, 0.95); /* 아주 진한 배경 */
-    backdrop-filter: blur(10px);
-    border: 2px solid var(--primary-color); /* 테두리 조금 더 두껍게 */
-    border-radius: 16px;
-    padding: 25px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.8); /* 그림자 진하게 */
-    color: white;
-    text-align: center; /* 텍스트 가운데 정렬 */
-}
-
-.overlay-content .info-row {
-    display: flex;
-    justify-content: center; /* 가운데 정렬 */
-    align-items: center;
-    gap: 15px;
-    margin-bottom: 15px;
-}
-
-.overlay-content .label {
-    color: var(--text-sub);
-    font-size: 1rem;
-}
-
-.overlay-content .value {
-    font-size: 1.4rem;
-    font-weight: bold;
-    color: var(--primary-color);
-}
-
-.overlay-content .description {
-    font-size: 0.9rem;
-    color: #ccc;
-    margin-bottom: 20px;
-}
-
-@keyframes slideUp {
-    from { transform: translateY(100%); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-}
-
-/* 카메라 전체화면 오버레이 */
-.camera-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(10, 10, 10, 0.92);
-    z-index: 10000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.camera-overlay video {
-    width: min(90vw, 520px);
-    height: min(70vh, 520px);
-    object-fit: cover;
-    border-radius: 16px;
-    border: 2px solid rgba(255, 255, 255, 0.15);
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
-}
-
-.camera-overlay-panel {
-    position: absolute;
-    bottom: 30px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    background: rgba(30, 30, 30, 0.85);
-    color: #fff;
-    padding: 10px 16px;
-    border-radius: 999px;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-}
-
-.camera-overlay-exit {
-    position: absolute;
-    top: 16px;
-    left: 16px;
-    width: auto;
-    padding: 8px 14px;
-}
-
-.camera-show-overlay {
-    position: fixed;
-    right: 16px;
-    bottom: 90px;
-    width: auto;
-    padding: 10px 14px;
-    z-index: 5000;
-}
-
-.scan-last-assigned {
     position: fixed;
     left: 50%;
     bottom: 20px;
@@ -497,19 +494,38 @@ select:focus {
     max-width: 90vw;
 }
 
-/* 섹터 라벨 */
-.sector-label {
-    background: rgba(30, 30, 30, 0.85);
-    color: #fff;
-    padding: 6px 10px;
-    border-radius: 999px;
-    font-size: 0.85rem;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
-    white-space: nowrap;
+/* 리스트 아이템 공통 */
+.list-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--surface-color);
+    padding: 16px;
+    border-radius: 12px;
+    margin-bottom: 10px;
+    border: 1px solid var(--border-color);
 }
 
-/* 섹터 설정 카드 */
+/* 섹터 리스트 (가로 스크롤) */
+.sector-list-horizontal {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding-bottom: 6px;
+}
+.sector-list-horizontal .list-item {
+    min-width: 220px;
+    margin-bottom: 0;
+}
+.sector-list-horizontal::-webkit-scrollbar {
+    height: 6px;
+}
+.sector-list-horizontal::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 999px;
+}
+
+/* 섹터 설정 카드 (지도 위 오버레이) */
 .map-overlay-card {
     position: absolute;
     top: 20px;
@@ -526,6 +542,19 @@ select:focus {
     margin: 0 auto;
 }
 
+.scan-box {
+    flex: 1; border: 2px dashed #666; border-radius: 16px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    margin-bottom: 20px; background: rgba(0,0,0,0.3); position: relative;
+}
+.scan-line {
+    width: 80%; height: 2px; background: var(--danger-color);
+    box-shadow: 0 0 10px var(--danger-color);
+    position: absolute; animation: scanAnim 2s infinite linear;
+}
+@keyframes scanAnim { 0% { top: 20%; } 50% { top: 80%; } 100% { top: 20%; } }
+
+/* 스캔 배정 팝업 */
 .scan-assigned-popup {
     position: fixed;
     top: 72px;
@@ -541,79 +570,13 @@ select:focus {
     font-size: 0.9rem;
 }
 
-/* =========================================
-   드래그 앤 드롭 순서 지정 UI
-   ========================================= */
-.order-drag-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    background: var(--surface-color);
-    padding: 14px 16px;
-    border-radius: 12px;
-    margin-bottom: 8px;
-    border: 1px solid var(--border-color);
-    cursor: grab;
-    transition: transform 0.15s, box-shadow 0.15s;
-    touch-action: none;
-}
-
-.order-drag-item:active {
-    cursor: grabbing;
-}
-
-.order-drag-ghost {
-    opacity: 0.4;
-}
-
-.order-drag-chosen {
-    box-shadow: 0 8px 24px rgba(59, 130, 246, 0.3);
-    border-color: var(--primary-color);
-    transform: scale(1.02);
-    z-index: 100;
-}
-
-.order-drag-handle {
-    color: var(--text-sub);
-    font-size: 1.1rem;
-    flex-shrink: 0;
-}
-
-.order-drag-number {
-    color: var(--primary-color);
-    font-weight: 800;
-    font-size: 1.2rem;
-    min-width: 24px;
-    text-align: center;
-    flex-shrink: 0;
-}
-
-.order-drag-info {
-    flex: 1;
-    min-width: 0;
-}
-
-.order-drag-name {
-    font-weight: 700;
-    font-size: 1rem;
-}
-
-.order-drag-count {
-    font-size: 0.85rem;
-    color: var(--text-sub);
-    margin-top: 2px;
-}
-
-/* =========================================
-   섹터별 현황판 (스캔 화면)
-   ========================================= */
+/* 섹터 대시보드 (스캔 페이지) */
 .sector-dashboard-cards {
     display: flex;
     gap: 8px;
     overflow-x: auto;
     padding-bottom: 4px;
 }
-
 .sector-dashboard-cards::-webkit-scrollbar {
     height: 4px;
 }
@@ -632,7 +595,6 @@ select:focus {
     text-align: center;
     transition: border-color 0.3s, transform 0.3s;
 }
-
 .sector-dash-name {
     font-size: 0.8rem;
     color: var(--text-sub);
@@ -641,20 +603,46 @@ select:focus {
     overflow: hidden;
     text-overflow: ellipsis;
 }
-
 .sector-dash-count {
     font-size: 1.4rem;
     font-weight: 800;
     color: var(--text-main);
 }
-
 .sector-dash-pulse {
     border-color: var(--success-color);
     transform: scale(1.05);
 }
-
 @keyframes dashPulse {
     0% { transform: scale(1); }
     50% { transform: scale(1.08); }
     100% { transform: scale(1); }
+}
+
+/* 드래그 앤 드롭 */
+.order-drag-item {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--surface-color); padding: 14px 16px; border-radius: 12px;
+    margin-bottom: 8px; border: 1px solid var(--border-color); cursor: grab;
+}
+.order-drag-chosen {
+    box-shadow: 0 8px 24px rgba(59, 130, 246, 0.3); border-color: var(--primary-color);
+    transform: scale(1.02); z-index: 100;
+}
+.order-drag-handle { color: var(--text-sub); font-size: 1.1rem; flex-shrink: 0; }
+.order-drag-number {
+    color: var(--primary-color); font-weight: 800; font-size: 1.2rem;
+    min-width: 24px; text-align: center; flex-shrink: 0;
+}
+.order-drag-info { flex: 1; min-width: 0; }
+.order-drag-name { font-weight: 700; font-size: 1rem; }
+
+/* =========================================
+   6. 유틸리티 클래스 (배경 보정 등)
+   ========================================= */
+.solid-bg {
+    background-color: var(--bg-color);
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    height: 100%;
 }
