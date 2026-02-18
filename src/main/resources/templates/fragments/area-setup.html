@@ -40,7 +40,10 @@
     <section id="phase_sector" class="phase transparent-bg" style="display:none;">
         <div class="map-overlay-card">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                <h3 style="margin:0;">섹터 생성 (Create Sector)</h3>
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <button class="btn btn-dark" onclick="goToPhase('phase_area')" style="width:auto; padding:8px 12px; font-size:0.85rem;">←</button>
+                    <h3 style="margin:0;">섹터 생성</h3>
+                </div>
                 <span id="radiusVal" style="color:var(--primary-color); font-weight:bold;">100m</span>
             </div>
             <div style="display:flex; gap:5px; margin-bottom:10px;">
@@ -59,7 +62,7 @@
                 <p style="text-align:center; color:#999; font-size:0.9rem;">지도에서 핀을 찍고 반경을 조절하세요.</p>
             </div>
 <!--            <button class="btn btn-primary" onclick="goToPhase('setup4')">-->
-            <button class="btn btn-primary" onclick="goToPhase('op_scan')">
+            <button class="btn btn-accent" onclick="goToPhase('op_scan')">
                 다음: 스캔 시작 (Scan)
             </button>
 
