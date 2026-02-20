@@ -441,13 +441,8 @@
             if (placeholder) placeholder.style.display = "none";
             if (btnStart) btnStart.disabled = true;
             if (btnStop) btnStop.disabled = false;
-            if (overlay) {
-                overlayHidden = false;
-                updateOverlayVisibility();
-            }
-            if (overlayVideo) {
-                try { await overlayVideo.play(); } catch (e) {}
-            }
+            // 모달 사용하지 않음 - 페이지 내 카메라 프리뷰 사용
+            if (overlay) overlay.style.display = "none";
 
             setHint("카메라 시작됨. 바코드를 비추세요.");
             setBadge("스캔 대기");
@@ -480,9 +475,10 @@
         }
 
         zxingReader = new window.ZXingBrowser.BrowserMultiFormatReader(hints);
-        const targetVideo = overlayVideo || video;
+        // 모달 대신 페이지 내 카메라 프리뷰 사용
+        const targetVideo = video;
 
-        if (overlay) overlay.style.display = "flex";
+        if (overlay) overlay.style.display = "none";
         targetVideo.style.display = "block";
         if (placeholder) placeholder.style.display = "none";
         if (btnStart) btnStart.disabled = true;
@@ -519,7 +515,7 @@
             await video.play();
             video.style.display = "block";
             if (placeholder) placeholder.style.display = "none";
-            if (overlay) overlay.style.display = "flex";
+            if (overlay) overlay.style.display = "none";
             scanning = true;
             scanLoop();
         }

@@ -34,7 +34,7 @@ function goToPhase(phaseId) {
 
     // 지도가 필요한 phase에서만 보이게, 나머지에서는 숨기기
     const mapEl = document.getElementById('map');
-    const mapPhases = ['phase_area', 'phase_sector', 'setup4'];
+    const mapPhases = ['phase_area', 'phase_sector', 'setup4', 'op_scan_order'];
     if (mapEl) {
         mapEl.style.display = mapPhases.includes(phaseId) ? 'block' : 'none';
     }
@@ -59,6 +59,16 @@ function goToPhase(phaseId) {
             window.forceFillAndRenderOrder();
         } else if (typeof window.renderScanOrderEditor === 'function') {
             window.renderScanOrderEditor();
+        }
+        // 지도에 섹터 표시
+        if (typeof window.renderSectorsOnMap === 'function' && sectors.length > 0) {
+            window.renderSectorsOnMap(sectors);
+        } else if (sectors.length === 0) {
+            fetchSectors().then(() => {
+                if (typeof window.renderSectorsOnMap === 'function') {
+                    window.renderSectorsOnMap(sectors);
+                }
+            });
         }
     }
     if (phaseId === 'op_load') loadRouteOrder(true);
